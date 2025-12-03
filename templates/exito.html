@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Reserva Confirmada</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #060506;
+            color: white;
+            padding-top: 50px;
+        }
+        .contenedor-exito {
+            background-color: rgb(197, 190, 190);
+            color: #2c3e50;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 500px;
+            margin: 0 auto;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            text-transform: uppercase;
+        }
+        .boton {
+            display: inline-block;
+            padding: 15px 30px;
+            margin-top: 30px;
+            background-color: #006989;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .boton:hover {
+            background-color: #005670;
+        }
+        h1 {
+            color: #2ecc71;
+        }
+        p {
+            font-size: 1.1em;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="contenedor-exito">
+        <h1>¡Reserva confirmada! ✅</h1>
+        <p>Hola, {{ nombre }}. Tu cita ha sido agendada exitosamente.</p>
+        <p>Detalles de la reserva:</p>
+        <hr>
+        <p><strong>Servicio:</strong> {{ servicio }}</p>
+        <p><strong>Fecha:</strong> {{ fecha }}</p>
+        <p><strong>Hora:</strong> {{ hora }}</p>
+        <hr>
+        <a href="/" class="boton">Volver al inicio</a>
+        <br>
+        <br>
+        <img src="/static/mapaLTM1.jpg" alt="Mapa de la red local"
+        style="max-width: 100%; height: auto; display: block; margin: 0 auto;">
+
+    </div>
+</body>
+</html>

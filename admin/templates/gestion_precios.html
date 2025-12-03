@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Precios</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 0;
+        }
+        .card {
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .precio-actual {
+            font-size: 1.5rem;
+            color: #28a745;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h4 class="mb-0">💰 Gestión de Precios de Servicios</h4>
+                    </div>
+                    <div class="card-body">
+                        <a href="{{ url_for('admin.control_principal') }}" class="btn btn-secondary mb-3">
+                            ← Volver al Dashboard
+                        </a>
+
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                            {% if messages %}
+                                {% for category, message in messages %}
+                                    <div class="alert alert-{{ category }} alert-dismissible fade show">
+                                        {{ message }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                        {% endwith %}
+
+                        <form method="POST">
+                            <!-- Selección de Servicio -->
+                            <div class="mb-3">
+                                <label class="form-label">🔧 Seleccionar Servicio</label>
+                                <select class="form-select" name="id_servicio" id="selectServicio" required>
+                                    <option value="">Seleccione un servicio</option>
+                                    {% for s in servicios %}
+                                        <option value="{{ s.id_servicio }}" data-precio="{{ s.precio }}">
+                                            {{ s.tipo_servicio }} - {{ s.nombre }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <!-- Precio Actual (se muestra automáticamente) -->
+                            <div class="mb-3">
+                                <label class="form-label">💵 Precio Actual</label>
+                                <div class="precio-actual" id="precioActual">-</div>
+                            </div>
+
+                            <!-- Precio Nuevo -->
+                            <div class="mb-3">
+                                <label class="form-label">💸 Precio Nuevo</label>
+                                <input type="number" class="form-control form-control-lg" 
+                                       name="precio_nuevo" min="0" step="1" required
+                                       placeholder="Ingrese el nuevo precio">
+                            </div>
+
+                            <button type="submit" class="btn btn-success btn-lg w-100">
+                                ✅ Actualizar Precio
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // JavaScript para mostrar precio actual al seleccionar servicio
+        document.getElementById('selectServicio').addEventListener('change', function() {
+            const selected = this.options[this.selectedIndex];
+            const precioActual = selected.getAttribute('data-precio');
+            
+            if (precioActual) {
+                document.getElementById('precioActual').textContent = '$' + parseInt(precioActual).toLocaleString('es-CL');
+            } else {
+                document.getElementById('precioActual').textContent = '-';
+            }
+        });
+    </script>
+</body>
+</html>

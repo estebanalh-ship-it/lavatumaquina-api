@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AGENDAR LAVADO - LAVA TU MAQUINA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        img {
+            width: 200px;
+            border-radius: 15px;
+            border: 2px solid #333;
+        }
+        h1 {
+            color: #00ff40;
+            text-transform: uppercase;
+            font-size: 26px;
+        }
+        .logo-container {
+            width: 100%;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .header-logo {
+            width: 200px;
+            height: auto;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+            background-color: #060506;
+            color: white;
+            text-transform: uppercase;
+        }
+        .formulario {
+            background: #c0ffb9;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            max-width: 400px;
+            margin: 0 auto;
+            color: #2c3e50;
+        }
+        .recuadro {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid #c0ffb9;
+            border-radius: 10px;
+            padding: 14px;
+            margin: 20px auto;
+            max-width: 400px;
+            text-align: left;
+            color: #00ff40;
+            font-family: ghotam, sans-serif;
+        }
+        .recuadro h2 {
+            color: #00ff40;
+            font-size: 20px;
+            text-align: center;
+        }
+        .recuadro h3 {
+            color: #00ff40;
+            font-size: 18px;
+            padding: 12px;
+            margin: 0;
+            text-align: center;
+        }
+        .recuadro ul {
+            color: #e0e0e0;
+            font-size: 14px;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            box-sizing: border-box;
+            text-transform: uppercase;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .boton {
+            display: inline-block;
+            padding: 15px 30px;
+            margin-top: 30px;
+            background-color: #008d00;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .boton:hover {
+            background-color: #009929;
+        }
+        .error {
+            color: #d32f2f;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="logo-container">
+        <img src="/static/sn.png" alt="Logo McLaren Senna" class="header-logo">
+    </div>
+
+    <div class="recuadro">
+        <h2>Servicios de Lavado</h2>
+        <h3>Servicio General</h3>
+        <ul>
+            <li>Lavado Exterior Snow Foam</li>
+            <li>Renovación de Neumáticos, Limpieza de Llantas</li>
+            <li>Aspirado Interior, Limpieza de Espacios Visibles</li>
+        </ul>
+        <h3>Servicio Especial</h3>
+        <ul>
+            <li>Lavado Exterior de Alta Calidad Snow-Foam</li>
+            <li>Renovación y Descontaminación de Llantas</li>
+            <li>Aspirado Profundo, Incluye Maletero</li>
+            <li>Limpieza Interior Completa</li>
+        </ul>
+    </div>
+
+    <h1>AGENDAR LAVADO DE AUTO 🧼</h1>
+
+    <div class="formulario">
+        <form method="POST">
+            <div class="form-group">
+                <input type="text" name="rut" id="rut" placeholder="RUT" required>
+            </div>
+            <div class="form-group">
+                <input type="text" name="nombre" id="nombre" placeholder="NOMBRE" required>
+            </div>
+            <div class="form-group">
+                <input type="email" name="email" id="email" placeholder="EMAIL" required>
+            </div>
+            <div class="form-group">
+                <input type="tel" name="telefono" id="telefono" placeholder="TELÉFONO" required>
+            </div>
+            <div class="form-group">
+                <input type="text" name="patente" id="patente" placeholder="PATENTE" required>
+            </div>
+
+            <div class="form-group">
+                <label for="tamaño_select">Tamaño del Auto:</label>
+                <select name="tamano_auto" id="tamano_select" onchange="cargarLavados()" required>
+                    <option value="">Seleccione tamaño...</option>
+                    {% for tamaño in tamanos_lavado %}
+                    <option value="{{ tamaño.nombre_tamaño }}">{{ tamaño.nombre_tamaño|title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- ✅ NUEVO: Select de SERVICIO LAVADO -->
+            <div class="form-group">
+                <label for="servicio_select">Tipo de Lavado:</label>
+                <select name="id_servicio" id="servicio_select" required>
+                    <option value="">Primero seleccione tamaño...</option>
+                    {% for servicio in servicios_lavado_actual %}
+                     <option value="{{ servicio.id_servicio }}">
+                        {{ servicio.nombre }} - ${{ servicio.precio|int }}
+                    </option>
+                    {% endfor %}
+                </select>
+                {% if not servicios_lavado_actual %}
+                    <p class="error">NO HAY SERVICIOS DISPONIBLES. CONTACTE CON VICENTE.</p>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="fecha">SELECCIONE FECHA:</label>
+                <input type="date" name="fecha" id="fecha" required>
+            </div>
+
+            <div class="form-group">
+                <select name="hora" id="horas" required>
+                    <option value="">SELECCIONE HORA</option>
+                </select>
+            </div>
+
+            <button type="submit">AGENDAR</button>
+        </form>
+    </div>
+
+    <p><a href="/" class="boton">⟲ VOLVER AL INICIO 🫧</a></p>
+
+    <script>
+        // ✅ NUEVA FUNCIÓN: Cargar lavados por tamaño
+        function cargarLavados() {
+            const tamano = document.getElementById('tamano_select').value;
+            const servicioSelect = document.getElementById('servicio_select');
+
+            if (!tamano) {
+                servicioSelect.innerHTML = '<option value="">Primero seleccione tamaño...</option>';
+                return;
+            }
+
+            fetch(`/get_lavados/${tamano}`)
+                .then(response => response.json())
+                .then(data => {
+                    servicioSelect.innerHTML = '';
+                    if (data.length > 0) {
+                        data.forEach(servicio => {
+                            const option = new Option(
+                                `${servicio.nombre} - $${servicio.precio}`,
+                                servicio.id_servicio
+                            );
+                            servicioSelect.appendChild(option);
+                        });
+                    } else {
+                        servicioSelect.innerHTML = '<option value="">No hay servicios</option>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    servicioSelect.innerHTML = '<option value="">Error al cargar</option>';
+                });
+        }
+
+        // ✅ MANTIENE TUS FUNCIONES EXISTENTES (auto-relleno + horas)
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-relleno RUT
+            const rutInput = document.getElementById('rut');
+            const nombreInput = document.getElementById('nombre');
+            const emailInput = document.getElementById('email');
+            const telefonoInput = document.getElementById('telefono');
+            const patenteInput = document.getElementById('patente');
+
+            if (rutInput) {
+                rutInput.addEventListener('blur', function() {
+                    const rut = this.value;
+                    if (rut) {
+                        fetch(`/buscar_cliente?rut=${rut}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.existe) {
+                                    if (nombreInput) nombreInput.value = data.nombre || '';
+                                    if (emailInput) emailInput.value = data.email || '';
+                                    if (telefonoInput) telefonoInput.value = data.telefono || '';
+                                    if (patenteInput) patenteInput.value = '';
+                                } else {
+                                    if (nombreInput) nombreInput.value = '';
+                                    if (emailInput) emailInput.value = '';
+                                    if (telefonoInput) telefonoInput.value = '';
+                                }
+                            })
+                            .catch(error => console.error('Error al buscar cliente:', error));
+                    }
+                });
+            }
+
+            // Horas disponibles
+            const fechaInput = document.getElementById('fecha');
+            const horasSelect = document.getElementById('horas');
+
+            if (fechaInput && horasSelect) {
+                fechaInput.addEventListener('change', function() {
+                    const fecha = this.value;
+                    if (fecha) {
+                        fetch(`/horas_disponibles?fecha=${fecha}`)
+                            .then(response => {
+                                if (!response.ok) throw new Error('Error de red');
+                                return response.json();
+                            })
+                            .then(data => {
+                                horasSelect.innerHTML = '<option value="">SELECCIONE HORA</option>';
+                                if (data.error) {
+                                    horasSelect.innerHTML = '<option value="" disabled>Error al cargar horas</option>';
+                                } else if (data.disponibles_lavados.length > 0) {
+                                    data.disponibles_lavados.forEach(banda => {
+                                        const option = document.createElement('option');
+                                        option.value = banda.split('-')[0];
+                                        option.text = banda;
+                                        horasSelect.appendChild(option);
+                                    });
+                                } else {
+                                    horasSelect.innerHTML = '<option value="" disabled>No hay horas disponibles</option>';
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error en horas:', error);
+                                horasSelect.innerHTML = '<option value="">Error de conexión</option>';
+                            });
+                    } else {
+                        horasSelect.innerHTML = '<option value="">SELECCIONE HORA</option>';
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

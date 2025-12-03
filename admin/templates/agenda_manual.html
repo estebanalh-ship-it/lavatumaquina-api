@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agenda Manual</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #01172c; color: #fff; }
+        .navbar { background-color: #02771c; }
+        .navbar-brand, .nav-link { color: #fff !important; }
+        .card { background-color: #022b3a; padding: 20px; color: #e6e6e6; }
+        .form-label { color: #ffffff; font-weight: bold; }
+        .btn-success { background-color: #04fa04; border: none; }
+        .btn-secondary { background-color: #02771c; border: none; }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Agenda Manual</a>
+            <div class="d-flex">
+                <a href="{{ url_for('admin.control_principal') }}" class="btn btn-secondary">Volver al Dashboard</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="card">
+            <h3 class="mb-3">Crear Agenda</h3>
+            <form method="POST">
+                <!-- Cliente -->
+                <div class="mb-3">
+                    <label for="id_cliente" class="form-label">Cliente</label>
+                    <select name="id_cliente" class="form-select" required>
+                        <option value="" selected disabled>Seleccione cliente</option>
+                        {% for c in clientes %}
+                        <option value="{{ c.id_cliente }}">{{ c.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                    <a href="{{ url_for('admin.nuevo_cliente') }}" class="btn btn-info mt-2">Agregar nuevo cliente</a>
+                </div>
+
+                <!-- Servicio -->
+                <div class="mb-3">
+                    <label for="id_servicio" class="form-label">Servicio</label>
+                    <select name="id_servicio" class="form-select" required>
+                        <option value="" selected disabled>Seleccione servicio</option>
+                        {% for s in servicios %}
+                        <option value="{{ s.id_servicio }}">{{ s.tipo_servicio }} - {{ s.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Fecha -->
+                <div class="mb-3">
+                    <label for="fecha_agenda" class="form-label">Fecha</label>
+                    <input type="date" name="fecha_agenda" class="form-control" required>
+                </div>
+
+                <!-- Hora -->
+                <div class="mb-3">
+                    <label for="hora_agenda" class="form-label">Hora</label>
+                    <select name="hora_agenda" class="form-select" required>
+                        <option value="" selected disabled>Seleccione hora</option>
+                        <option value="09:00">09:00</option>
+                        <option value="10:00">10:00</option>
+                        <option value="11:00">11:00</option>
+                        <option value="12:00">12:00</option>
+                        <option value="15:00">15:00</option>
+                        <option value="16:00">16:00</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-success w-100">Crear Agenda</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

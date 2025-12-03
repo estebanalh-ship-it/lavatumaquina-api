@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AGENDAR LAVADO TAPIZ - LAVA TU MAQUINA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        img {
+            width: 200px;
+            border-radius: 15px;
+            border: 2px solid #333;
+        }
+        h1 {
+            color: #00ff40; #letrastitulos
+            text-transform: uppercase;
+            font-size: 26px;
+        }
+        .logo-container {
+                width: 100%;
+                text-align: center;
+                margin-bottom: 20px;
+            }
+            .header-logo {
+                width: 200px;
+                height: auto;
+            }
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+            background-color: #060506;
+            color: white;
+            text-transform: uppercase;
+        }
+        .formulario {
+            background: #c0ffb9;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            max-width: 400px;
+            margin: 0 auto;
+            color: #2c3e50;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            box-sizing: border-box;
+            text-transform: uppercase;
+        }
+        .boton {
+        display: inline-block;
+        padding: 15px 30px;
+        margin-top: 30px;
+        background-color: #008d00;
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 18px;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+    .boton:hover {
+        background-color: #009929;
+    }
+    </style>
+</head>
+<body>
+    <div class="logo-container">
+        <img src="/static/lt1.jpg" alt="Logo F1" class="header-logo">
+    <h1>AGENDAR LAVADO TAPIZ</h1>
+    <div class="formulario">
+        <form method="POST">
+            <input type="text" name="rut" id="rut" placeholder="RUT" required>
+            <input type="text" name="nombre" id="nombre" placeholder="NOMBRE" required>
+            <input type="email" name="email" id="email" placeholder="EMAIL" required>
+            <input type="tel" name="telefono" id="telefono" placeholder="TELÉFONO" required>
+            <input type="text" name="patente" placeholder="PATENTE" required>
+
+            <select name="id_servicio" required>
+                <option value="">SELECCIONE SERVICIO</option>
+                {% for servicio in servicios %}
+                <option value="{{ servicio.id_servicio }}">{{ servicio.nombre }} - ${{ servicio.precio }}</option>
+                {% endfor %}
+            </select>
+            {% if not servicios %}
+                <p class="error">NO HAY SERVICIOS DISPONIBLES. CONTACTE CON VICENTE.</p>
+            {% endif %}
+
+
+            <label for="fecha">SELECCIONE FECHA:</label>
+			<input type="date" name="fecha" id="fecha" required>
+
+
+            <select name="hora" id="horas_lavadotapiz" required>
+                <option value="">SELECCIONE HORA</option>
+            </select>
+
+            <button type="submit">AGENDAR</button>
+        </form>
+    </div>
+    <p><a href="/" class="boton">⟲ VOLVER AL INICIO 🫧</a></p>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const rutInput = document.getElementById('rut');
+            const nombreInput = document.getElementById('nombre');
+
+            if (rutInput && nombreInput) {
+                rutInput.addEventListener('blur', function() {
+                    const rut = this.value;
+                    if (rut) {
+                        fetch(`/buscar_cliente?rut=${rut}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.existe) {
+                                    nombreInput.value = data.nombre || '';
+                                } else {
+                                    nombreInput.value = '';
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error al buscar cliente:', error);
+                                nombreInput.value = '';
+                            });
+                    }
+                });
+            } else {
+                console.error('Error: No se encontraron los elementos rut o nombre');
+            }
+
+            // Lógica para cargar las horas disponibles según la fecha
+            const fechaInput = document.getElementById('fecha');
+            const horasSelect = document.getElementById('horas_lavadotapiz');
+
+            if (fechaInput && horasSelect) {
+                fechaInput.addEventListener('change', function() {
+                    const fecha = this.value;
+                    if (fecha) {
+                        fetch(`/horas_disponibles?fecha=${fecha}`)
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error('Error de red o del servidor');
+                                }
+                                return response.json();
+                            })
+                            .then(data => {
+                                horasSelect.innerHTML = '<option value="">SELECCIONE HORA</option>';
+                                if (data.error) {
+                                    const option = document.createElement('option');
+                                    option.value = '';
+                                    option.disabled = true;
+                                    option.text = 'Error al cargar horas';
+                                    horasSelect.appendChild(option);
+
+                                } else {
+                                    if (data.disponibles_mecanicos.length > 0) {
+                                    data.disponibles_mecanicos.forEach(banda => {
+                                        const option = document.createElement('option');
+                                        option.value = banda.split('-')[0];
+                                        option.text = banda;
+                                        horasSelect.appendChild(option);
+                                    });
+                                } else {
+                                    const option = document.createElement('option');
+                                    option.value = '';
+                                    option.disabled = true;
+                                    option.text = 'No hay horas disponibles para lavado';
+                                    horasSelect.appendChild(option);
+                                    }
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error en la petición de horas:', error);
+                                horasSelect.innerHTML = '<option value="">Error de conexión</option>';
+                            });
+                    } else {
+                        horasSelect.innerHTML = '<option value="">SELECCIONE HORA</option>';
+                    }
+                });
+            } else {
+                console.error('Error: No se encontraron los elementos fecha o horas');
+            }
+        });
+    </script>
+</body>
+</html>

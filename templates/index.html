@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+        <title>LAVA TU MAQUINA - BIENVENIDA</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            img {
+                width: 200px;
+                border-radius: 15px;
+                border: 2px solid #333;
+            }
+            body {
+                font-family: Arial, sans-serif;
+                text-align: center;
+                margin: 20px;
+                background-color: #060506; /*fondo*/
+                color: white;
+                text-transform: uppercase;
+                box-sizing: border-box;
+            }
+            h1 {
+                color: white; /*letrastitulos*/
+                text-transform: uppercase;
+                font-size: 24px;
+            }
+            p   {
+                color: #00ff40;
+                font-size: 18px;
+            }
+           .logo-container {
+                padding: 20px 0;
+                width: 100%;
+                margin: 0 auto;
+                text-align: center;
+            }
+            .logo {
+                width: 180px;
+                height: auto;
+                display: inline-block;
+            }
+            .boton {
+                display: block;
+                width: 90%;
+                max-width: 300px;
+                margin: 20px auto;
+                padding: 15px;
+                background: linear-gradient(to bottom, #006414, #004d10); /* gradiente verde oscuro */
+                color: white;
+                text-decoration: none;
+                border-radius: 8px;
+                font-size: 18px;
+                font-weight: bold;
+                text-transform: uppercase;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4); /* sombra para profundidad */
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+            }
+            .boton:hover {
+                background: linear-gradient(to bottom, #009929, #007a1f); /* gradiente más claro al pasar el mouse */
+                transform: translateY(-2px); /* efecto de levantamiento */
+                box-shadow: 0 6px 10px rgba(0, 0, 0, 0.5); /* sombra más intensa */
+            }
+            .boton:link,
+            .boton:visited {
+                color: white;
+            }
+            .boton:active {
+                color: white;
+            }
+            .boton:hover,
+            .boton:active {
+                color: white;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="logo-container">
+            <img src="/static/logo.png" alt="Lava Tu Maquina" class="logo">
+        </div>
+
+        <h1>¡bienvenido a lava tu maquina!</h1>
+        <p>selecciona el servicio que necesitas:</p>
+
+        <a href="/lavado" class="boton">agenda tu lavado</a>
+        <a href="/mecanico" class="boton">agenda tu servicio mecanico</a>
+        <a href="/lavadotapiz" class="boton">agenda tu lavado de tapiz</a>
+        <h1>¡TU SERVICIO DE CONFIANZA Y CALIDAD!<h1>
+    </body>
+    </html>
