@@ -71,8 +71,12 @@
     <div class="formulario">
         <form method="POST">
             <input type="text" name="rut" id="rut" placeholder="RUT" required>
-            <input type="text" name="nombre" id="nombre" placeholder="NOMBRE" required>
-            <input type="email" name="email" id="email" placeholder="EMAIL" required>
+            <input type="text" id="nombre" name="nombre" 
+    		placeholder="NOMBRE" maxlength="20" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+" 
+    		title="Solo letras y espacios (máximo 20 caracteres)"
+    		oninput="this.value = this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, '')"
+    		required>
+			<input type="email" name="email" id="email" placeholder="EMAIL" required>
             <input type="tel" name="telefono" id="telefono" placeholder="TELÉFONO" required>
             <input type="text" name="patente" placeholder="PATENTE" required>
 
