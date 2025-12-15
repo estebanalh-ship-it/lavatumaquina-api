@@ -52,7 +52,7 @@ def lavado():
             rut = request.form['rut']
             nombre = request.form['nombre']
             email = request.form['email']
-            telefono = str(request.form['telefono', ''])
+            telefono = str(request.form.get('telefono', ''))
             if not telefono.startswith('+569'):
                 telefono = '+569' + telefono.replace('+569', '')
             patente = request.form['patente']
@@ -179,7 +179,7 @@ def mecanico():
             rut = request.form['rut']
             nombre = request.form['nombre']
             email = request.form['email']
-            telefono = str(request.form['telefono', ''])
+            telefono = str(request.form.get('telefono', ''))
             if not telefono.startswith('+569'):
                 telefono = '+569' + telefono.replace('+569', '')
             patente = request.form['patente']
@@ -250,7 +250,7 @@ def lavadotapiz():
             rut = request.form['rut']
             nombre = request.form['nombre']
             email = request.form['email']
-            telefono = str(request.form['telefono', ''])
+            telefono = str(request.form.get('telefono', ''))
             if not telefono.startswith('+569'):
                 telefono = '+569' + telefono.replace('+569', '')
             patente = request.form['patente']
