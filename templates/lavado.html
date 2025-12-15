@@ -131,7 +131,11 @@
     <div class="formulario">
         <form method="POST">
             <div class="form-group">
-                <input type="text" name="rut" id="rut" placeholder="RUT" required>
+                <input type="text" id="rut" name="rut" 
+        		placeholder="RUT (ej: 17754077-2)" maxlength="11" 
+    		    pattern="\d{7,8}-[\dkK]" title="Formato: 12345678-9 (sin puntos, con guión)"
+    		    oninput="this.value = this.value.replace(/[^\d-kK]/g, '').toUpperCase()"
+    		    required>
             </div>
             <div class="form-group">
                 <input 
