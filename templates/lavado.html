@@ -132,10 +132,10 @@
         <form method="POST">
             <div class="form-group">
                 <input type="text" id="rut" name="rut" 
-        		placeholder="RUT (ej: 17754077-2)" maxlength="11" 
-    		    pattern="\d{7,8}-[\dkK]" title="Formato: 12345678-9 (sin puntos, con guión)"
-    		    oninput="this.value = this.value.replace(/[^\d-kK]/g, '').toUpperCase()"
-    		    required>
+                    placeholder="RUT (ej: 17754077-2)" maxlength="11" 
+                    pattern="\d{7,8}-[\dkK]" title="Formato: 12345678-9 (sin puntos, con guión)"
+                    oninput="this.value = this.value.replace(/[^\d-kK]/g, '').toUpperCase()"
+                    required>
             </div>
             <div class="form-group">
                 <input 
@@ -156,12 +156,12 @@
                 <div style="display: flex; align-items: center;">
                     <span style="padding: 8px; background-color: #e9ecef; border: 1px solid #ced4da; border-radius: 4px 0 0 4px;">+569</span>
                     <input 
-                    type="text" id="telefono" name="telefono_usuario" 
-                    placeholder="66822259" maxlength="8" pattern="\d{8}" 
-                    title="Ingrese 8 dígitos (sin espacios ni guiones)"
-                    oninput="this.value = this.value.replace(/\D/g, '')"
-                    style="border-radius: 0 4px 4px 0; flex: 1;"
-                    required>
+                        type="text" id="telefono_usuario" name="telefono_usuario" 
+                        placeholder="66822259" maxlength="8" pattern="\d{8}" 
+                        title="Ingrese 8 dígitos (sin espacios ni guiones)"
+                        oninput="this.value = this.value.replace(/\D/g, '')"
+                        style="border-radius: 0 4px 4px 0; flex: 1;"
+                        required>
                     <input type="hidden" id="telefono_completo" name="telefono">
                 </div>           
             </div>
@@ -170,7 +170,7 @@
             </div>
 
             <div class="form-group">
-                <label for="tamaño_select">Tamaño del Auto:</label>
+                <label for="tamano_select">Tamaño del Auto:</label>
                 <select name="tamano_auto" id="tamano_select" onchange="cargarLavados()" required>
                     <option value="">Seleccione tamaño...</option>
                     {% for tamaño in tamanos_lavado %}
@@ -179,13 +179,12 @@
                 </select>
             </div>
 
-            <!-- ✅ NUEVO: Select de SERVICIO LAVADO -->
             <div class="form-group">
                 <label for="servicio_select">Tipo de Lavado:</label>
                 <select name="id_servicio" id="servicio_select" required>
                     <option value="">Primero seleccione tamaño...</option>
                     {% for servicio in servicios_lavado_actual %}
-                     <option value="{{ servicio.id_servicio }}">
+                    <option value="{{ servicio.id_servicio }}">
                         {{ servicio.nombre }} - ${{ servicio.precio|int }}
                     </option>
                     {% endfor %}
@@ -213,7 +212,7 @@
     <p><a href="/" class="boton">⟲ VOLVER AL INICIO 🫧</a></p>
 
     <script>
-        // ✅ NUEVA FUNCIÓN: Cargar lavados por tamaño
+        // Cargar lavados por tamaño
         function cargarLavados() {
             const tamano = document.getElementById('tamano_select').value;
             const servicioSelect = document.getElementById('servicio_select');
@@ -245,13 +244,13 @@
                 });
         }
 
-        // ✅ MANTIENE TUS FUNCIONES EXISTENTES (auto-relleno + horas)
+        // Auto-relleno y funciones principales
         document.addEventListener('DOMContentLoaded', function() {
             // Auto-relleno RUT
             const rutInput = document.getElementById('rut');
             const nombreInput = document.getElementById('nombre');
             const emailInput = document.getElementById('email');
-            const telefonoInput = document.getElementById('telefono');
+            const telefonoInput = document.getElementById('telefono_usuario');
             const patenteInput = document.getElementById('patente');
 
             if (rutInput) {
@@ -314,11 +313,14 @@
                     }
                 });
             }
+            
+            // Combinar código +569 con teléfono
             document.querySelector('form').addEventListener('submit', function(e) {
-                const telefonoUsuario = document.getElementById('telefono_usuaio').value;
+                const telefonoUsuario = document.getElementById('telefono_usuario').value;
                 const telefonoCompleto = '+569' + telefonoUsuario;
                 document.getElementById('telefono_completo').value = telefonoCompleto;
             });
+        });
     </script>
 </body>
 </html>
