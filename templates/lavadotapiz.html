@@ -10,19 +10,19 @@
             border: 2px solid #333;
         }
         h1 {
-            color: #00ff40; #letrastitulos
+            color: #00ff40;
             text-transform: uppercase;
             font-size: 26px;
         }
         .logo-container {
-                width: 100%;
-                text-align: center;
-                margin-bottom: 20px;
-            }
-            .header-logo {
-                width: 200px;
-                height: auto;
-            }
+            width: 100%;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .header-logo {
+            width: 200px;
+            height: auto;
+        }
         body {
             font-family: Arial, sans-serif;
             text-align: center;
@@ -48,40 +48,51 @@
             text-transform: uppercase;
         }
         .boton {
-        display: inline-block;
-        padding: 15px 30px;
-        margin-top: 30px;
-        background-color: #008d00;
-        color: white;
-        text-decoration: none;
-        border-radius: 8px;
-        font-size: 18px;
-        font-weight: bold;
-        text-transform: uppercase;
-    }
-    .boton:hover {
-        background-color: #009929;
-    }
+            display: inline-block;
+            padding: 15px 30px;
+            margin-top: 30px;
+            background-color: #008d00;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .boton:hover {
+            background-color: #009929;
+        }
     </style>
 </head>
 <body>
     <div class="logo-container">
         <img src="/static/lt1.jpg" alt="Logo F1" class="header-logo">
+    </div>
     <h1>AGENDAR LAVADO TAPIZ</h1>
     <div class="formulario">
         <form method="POST">
             <input type="text" id="rut" name="rut" 
-    		placeholder="RUT (ej: 17754077-2)" maxlength="11" 
-    		pattern="\d{7,8}-[\dkK]" title="Formato: 12345678-9 (sin puntos, con guión)"
-    		oninput="this.value = this.value.replace(/[^\d-kK]/g, '').toUpperCase()"
-    		required>
+                placeholder="RUT (ej: 17754077-2)" maxlength="11" 
+                pattern="\d{7,8}-[\dkK]" title="Formato: 12345678-9 (sin puntos, con guión)"
+                oninput="this.value = this.value.replace(/[^\d-kK]/g, '').toUpperCase()"
+                required>
             <input type="text" id="nombre" name="nombre" 
-    		placeholder="NOMBRE" maxlength="20" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+" 
-    		title="Solo letras y espacios (máximo 20 caracteres)"
-    		oninput="this.value = this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, '')"
-    		required>
-			<input type="email" name="email" id="email" placeholder="EMAIL" required>
-            <input type="tel" name="telefono" id="telefono" placeholder="TELÉFONO" required>
+                placeholder="NOMBRE" maxlength="20" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+" 
+                title="Solo letras y espacios (máximo 20 caracteres)"
+                oninput="this.value = this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, '')"
+                required>
+            <input type="email" name="email" id="email" placeholder="EMAIL" required>
+            <div style="display: flex; align-items: center;">
+                <span style="padding: 8px; background-color: #e9ecef; border: 1px solid #ced4da; border-radius: 4px 0 0 4px;">+569</span>
+                <input 
+                    type="text" id="telefono_usuario" name="telefono_usuario" 
+                    placeholder="66822259" maxlength="8" pattern="\d{8}" 
+                    title="Ingrese 8 dígitos (sin espacios ni guiones)"
+                    oninput="this.value = this.value.replace(/\D/g, '')"
+                    style="border-radius: 0 4px 4px 0; flex: 1;"
+                    required>
+                <input type="hidden" id="telefono_completo" name="telefono">
+            </div>
             <input type="text" name="patente" placeholder="PATENTE" required>
 
             <select name="id_servicio" required>
@@ -94,10 +105,8 @@
                 <p class="error">NO HAY SERVICIOS DISPONIBLES. CONTACTE CON VICENTE.</p>
             {% endif %}
 
-
             <label for="fecha">SELECCIONE FECHA:</label>
-			<input type="date" name="fecha" id="fecha" required>
-
+            <input type="date" name="fecha" id="fecha" required>
 
             <select name="hora" id="horas_lavadotapiz" required>
                 <option value="">SELECCIONE HORA</option>
@@ -159,21 +168,20 @@
                                     option.disabled = true;
                                     option.text = 'Error al cargar horas';
                                     horasSelect.appendChild(option);
-
                                 } else {
-                                    if (data.disponibles_mecanicos.length > 0) {
-                                    data.disponibles_mecanicos.forEach(banda => {
+                                    if (data.disponibles_lavadotapiz.length > 0) {
+                                        data.disponibles_lavadotapiz.forEach(banda => {
+                                            const option = document.createElement('option');
+                                            option.value = banda.split('-')[0];
+                                            option.text = banda;
+                                            horasSelect.appendChild(option);
+                                        });
+                                    } else {
                                         const option = document.createElement('option');
-                                        option.value = banda.split('-')[0];
-                                        option.text = banda;
+                                        option.value = '';
+                                        option.disabled = true;
+                                        option.text = 'No hay horas disponibles para lavado tapiz';
                                         horasSelect.appendChild(option);
-                                    });
-                                } else {
-                                    const option = document.createElement('option');
-                                    option.value = '';
-                                    option.disabled = true;
-                                    option.text = 'No hay horas disponibles para lavado';
-                                    horasSelect.appendChild(option);
                                     }
                                 }
                             })
@@ -188,6 +196,13 @@
             } else {
                 console.error('Error: No se encontraron los elementos fecha o horas');
             }
+            
+            // Combinar código +569 con teléfono
+            document.querySelector('form').addEventListener('submit', function(e) {
+                const telefonoUsuario = document.getElementById('telefono_usuario').value;
+                const telefonoCompleto = '+569' + telefonoUsuario;
+                document.getElementById('telefono_completo').value = telefonoCompleto;
+            });
         });
     </script>
 </body>
