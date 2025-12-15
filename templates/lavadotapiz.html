@@ -70,7 +70,11 @@
     <h1>AGENDAR LAVADO TAPIZ</h1>
     <div class="formulario">
         <form method="POST">
-            <input type="text" name="rut" id="rut" placeholder="RUT" required>
+            <input type="text" id="rut" name="rut" 
+    		placeholder="RUT (ej: 17754077-2)" maxlength="11" 
+    		pattern="\d{7,8}-[\dkK]" title="Formato: 12345678-9 (sin puntos, con guión)"
+    		oninput="this.value = this.value.replace(/[^\d-kK]/g, '').toUpperCase()"
+    		required>
             <input type="text" id="nombre" name="nombre" 
     		placeholder="NOMBRE" maxlength="20" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+" 
     		title="Solo letras y espacios (máximo 20 caracteres)"
