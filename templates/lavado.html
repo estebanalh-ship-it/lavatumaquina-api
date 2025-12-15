@@ -153,7 +153,17 @@
                 <input type="email" name="email" id="email" placeholder="EMAIL" required>
             </div>
             <div class="form-group">
-                <input type="tel" name="telefono" id="telefono" placeholder="TELÉFONO" required>
+                <div style="display: flex; align-items: center;">
+                    <span style="padding: 8px; background-color: #e9ecef; border: 1px solid #ced4da; border-radius: 4px 0 0 4px;">+569</span>
+                    <input 
+                    type="text" id="telefono" name="telefono_usuario" 
+                    placeholder="66822259" maxlength="8" pattern="\d{8}" 
+                    title="Ingrese 8 dígitos (sin espacios ni guiones)"
+                    oninput="this.value = this.value.replace(/\D/g, '')"
+                    style="border-radius: 0 4px 4px 0; flex: 1;"
+                    required>
+                    <input type="hidden" id="telefono_completo" name="telefono">
+                </div>           
             </div>
             <div class="form-group">
                 <input type="text" name="patente" id="patente" placeholder="PATENTE" required>
@@ -304,7 +314,11 @@
                     }
                 });
             }
-        });
+            document.querySelector('form').addEventListener('submit', function(e) {
+                const telefonoUsuario = document.getElementById('telefono_usuaio').value;
+                const telefonoCompleto = '+569' + telefonoUsuario;
+                document.getElementById('telefono_completo').value = telefonoCompleto;
+            });
     </script>
 </body>
 </html>
