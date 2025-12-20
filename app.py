@@ -322,8 +322,20 @@ def buscar_cliente():
         cursor = conexion.cursor(dictionary=True)
         cursor.execute("SELECT * FROM clientes WHERE rut = %s", (rut,))
         cliente = cursor.fetchone()
+        
         if cliente:
-            return jsonify({'existe': True, 'id_cliente': cliente['id_cliente'], 'nombre': cliente['nombre']})
+            # Lógica para limpiar el teléfono (quitar el +569 si viene de la BD)
+            # Porque en el HTML el usuario solo debe ver los 8 dígitos
+            telefono_bd = str(cliente['telefono']) if cliente['telefono'] else ""
+            telefono_limpio = telefono_bd.replace('+569', '')
+
+            return jsonify({
+                'existe': True, 
+                'id_cliente': cliente['id_cliente'], 
+                'nombre': cliente['nombre'],
+                'email': cliente['email'],       # ✅ Agregamos Email
+                'telefono': telefono_limpio      # ✅ Agregamos Teléfono (8 dígitos)
+            })
         else:
             return jsonify({'existe': False})
     except Exception as e:
