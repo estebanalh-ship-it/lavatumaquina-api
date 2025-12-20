@@ -161,10 +161,18 @@
             } else {
                 console.error('Error: No se encontraron los elementos rut o nombre');
             }
+            const fechaHoy = new Date();
+            const yyyy = fechaHoy.getFullYear();
+            const mm = String(fechaHoy.getMonth() + 1).padStart(2, '0');
+            const dd = String(fechaHoy.getDate()).padStart(2, '0');
+            const hoyFormateado = `${yyyy}-${mm}-${dd}`;
 
-            // Lógica para cargar las horas disponibles según la fecha
             const fechaInput = document.getElementById('fecha');
-            const horasSelect = document.getElementById('horas_mecanico');
+            if (fechaInput) {
+                fechaInput.min = hoyFormateado;
+            }        
+            // Lógica para cargar las horas disponibles según la fecha
+             const horasSelect = document.getElementById('horas_mecanico');
 
             if (fechaInput && horasSelect) {
                 fechaInput.addEventListener('change', function() {
