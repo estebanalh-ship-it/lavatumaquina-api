@@ -127,23 +127,34 @@
         document.addEventListener('DOMContentLoaded', function() {
             const rutInput = document.getElementById('rut');
             const nombreInput = document.getElementById('nombre');
+            const emailInput = document.getElementById('email');
+            const telefonoInput = document.getElementById('telefono_usuario');
+            const patenteInput = document.getElementById('patente');
 
             if (rutInput && nombreInput) {
                 rutInput.addEventListener('blur', function() {
                     const rut = this.value;
+                    
                     if (rut) {
                         fetch(`/buscar_cliente?rut=${rut}`)
                             .then(response => response.json())
                             .then(data => {
                                 if (data.existe) {
-                                    nombreInput.value = data.nombre || '';
+                                    if (nombreInput) nombreInput.value = data.nombre || '';
+                                    if (emailInput) emailInput.value = data.email || '';
+                                    if (telefonoInput) telefonoInput.value = data.telefono || '';
+                                    if (patenteInput) patenteInput.value = ''; // No autocompletar patente
                                 } else {
-                                    nombreInput.value = '';
+                                    if (nombreInput) nombreInput.value = '';
+                                    if (emailInput) emailInput.value = '';
+                                    if (telefonoInput) telefonoInput.value = '';
                                 }
                             })
                             .catch(error => {
                                 console.error('Error al buscar cliente:', error);
-                                nombreInput.value = '';
+                                if (nombreInput) nombreInput.value = '';
+                                if (emailInput) emailInput.value = '';
+                                if (telefonoInput) telefonoInput.value = '';
                             });
                     }
                 });
