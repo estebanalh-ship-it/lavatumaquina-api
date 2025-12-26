@@ -3,6 +3,11 @@ import os
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from sqlalchemy import text
 from database import engine
+import json
+import io
+from openpyxl import Workbook
+from openpyxl.styles import Font, Alignment, Border, Side
+from flask import send_file
 
 def login_required(f):
     @wraps(f)
@@ -233,6 +238,161 @@ def gestion_precios():
         """)).mappings().all()
 
     return render_template('gestion_precios.html', servicios=servicios)
+# --- MÓDULO DE COTIZACIONES ---
+@admin_bp.route('/cotizaciones')
+@login_required
+def lista_cotizaciones():
+    """Muestra la tabla con el historial de cotizaciones."""
+    with engine.connect() as conn:
+        # Traemos solo los datos resumen, no el detalle JSON pesado
+        cotizaciones = conn.execute(text("""
+            SELECT id, fecha, nombre_cliente, rut_cliente, total_final, estado 
+            FROM cotizaciones 
+            ORDER BY id DESC
+        """)).mappings().all()
+    
+    return render_template('cotizaciones_lista.html', cotizaciones=cotizaciones)
+
+@admin_bp.route('/nueva_cotizacion', methods=['GET', 'POST'])
+@login_required
+def nueva_cotizacion():
+    """Formulario para crear y guardar una nueva cotización."""
+    if request.method == 'POST':
+        # 1. Datos del Cliente
+        rut = request.form.get('rut')
+        nombre = request.form.get('nombre')
+        email = request.form.get('email')
+        telefono = request.form.get('telefono')
+
+        # 2. Datos de los Ítems (Productos)
+        # En el HTML usaremos inputs con nombres como name="items_producto[]"
+        # .getlist() nos permite recuperar todos los valores en una lista
+        productos = request.form.getlist('items_producto[]')
+        cantidades = request.form.getlist('items_cantidad[]')
+        precios = request.form.getlist('items_precio[]')
+
+        # 3. Procesar los datos y calcular totales (Backend es más seguro que JS)
+        lista_items = []
+        total_neto = 0
+
+        # Zip une las tres listas para recorrerlas juntas (fila por fila)
+        for prod, cant, prec in zip(productos, cantidades, precios):
+            if prod.strip(): # Solo si hay nombre de producto
+                c = float(cant) if cant else 0
+                p = float(prec) if prec else 0
+                subtotal = c * p
+                
+                lista_items.append({
+                    "producto": prod,
+                    "cantidad": c,
+                    "precio_unitario": p,
+                    "subtotal": subtotal
+                })
+                total_neto += subtotal
+
+        iva = total_neto * 0.19
+        total_final = total_neto + iva
+        
+        # Convertimos la lista de Python a Texto JSON para guardarla en BD
+        items_json = json.dumps(lista_items)
+
+        try:
+            with engine.begin() as conn:
+                conn.execute(text("""
+                    INSERT INTO cotizaciones 
+                    (rut_cliente, nombre_cliente, email_cliente, telefono_cliente, 
+                     total_neto, iva, total_final, detalle_items, fecha)
+                    VALUES (:rut, :nombre, :email, :tel, :neto, :iva, :final, :items, NOW())
+                """), {
+                    'rut': rut, 'nombre': nombre, 'email': email, 'tel': telefono,
+                    'neto': total_neto, 'iva': iva, 'final': total_final, 'items': items_json
+                })
+            
+            flash('✅ Cotización creada con éxito.', 'success')
+            return redirect(url_for('admin.lista_cotizaciones'))
+
+        except Exception as e:
+            flash(f'❌ Error al guardar cotización: {e}', 'danger')
+
+    return render_template('cotizaciones_nueva.html')
+
+
+@admin_bp.route('/descargar_cotizacion/<int:id_cotizacion>')
+@login_required
+def descargar_cotizacion(id_cotizacion):
+    """Genera y descarga el archivo Excel de una cotización específica."""
+    
+    # 1. Buscar datos en la BD
+    with engine.connect() as conn:
+        cot = conn.execute(text("SELECT * FROM cotizaciones WHERE id = :id"), 
+                           {'id': id_cotizacion}).mappings().fetchone()
+    
+    if not cot:
+        flash('Cotización no encontrada', 'danger')
+        return redirect(url_for('admin.lista_cotizaciones'))
+
+    # 2. Recuperar items del JSON
+    items = json.loads(cot['detalle_items'])
+
+    # 3. Crear Excel en Memoria (openpyxl)
+    wb = Workbook()
+    ws = wb.active
+    ws.title = f"Cotizacion_{cot['id']}"
+
+    # --- DISEÑO DEL EXCEL ---
+    # Encabezados
+    ws['A1'] = "COTIZACIÓN DE SERVICIOS"
+    ws['A1'].font = Font(bold=True, size=14)
+    ws.merge_cells('A1:D1')
+
+    # Datos Cliente
+    ws['A3'] = "Cliente:"; ws['B3'] = cot['nombre_cliente']
+    ws['A4'] = "RUT:";     ws['B4'] = cot['rut_cliente']
+    ws['A5'] = "Fecha:";   ws['B5'] = str(cot['fecha'])
+    ws['C3'] = "Email:";   ws['D3'] = cot['email_cliente']
+
+    # Encabezados de Tabla
+    headers = ["Descripción / Servicio", "Cantidad", "Precio Unit.", "Total"]
+    ws.append([]) # Espacio
+    ws.append(headers) 
+    
+    # Estilo negrita para cabecera de tabla (Fila 7)
+    for col in range(1, 5):
+        ws.cell(row=7, column=col).font = Font(bold=True)
+
+    # Rellenar filas de productos
+    for item in items:
+        ws.append([
+            item['producto'], 
+            item['cantidad'], 
+            item['precio_unitario'], 
+            item['subtotal']
+        ])
+
+    # Totales al final
+    ws.append([]) # Espacio
+    ws.append(["", "", "Neto:", cot['total_neto']])
+    ws.append(["", "", "IVA (19%):", cot['iva']])
+    ws.append(["", "", "TOTAL:", cot['total_final']])
+
+    # Estilo final total
+    ult_fila = ws.max_row
+    ws[f'C{ult_fila}'].font = Font(bold=True)
+    ws[f'D{ult_fila}'].font = Font(bold=True)
+
+    # 4. Guardar en memoria virtual (buffer) en lugar de disco
+    buffer = io.BytesIO()
+    wb.save(buffer)
+    buffer.seek(0)
+
+    nombre_archivo = f"Cotizacion_{cot['id']}_{cot['nombre_cliente'].replace(' ', '_')}.xlsx"
+    
+    return send_file(
+        buffer, 
+        as_attachment=True, 
+        download_name=nombre_archivo, 
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
 
 @admin_bp.route('/stock_productos')
 @login_required
