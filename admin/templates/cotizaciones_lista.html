@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historial de Cotizaciones</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-light">
+
+    {% include 'navbar.html' ignore missing %} 
+    <!-- Si tienes un navbar común, úsalo. Si no, borra esta línea -->
+
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>📜 Historial de Cotizaciones</h2>
+            <a href="{{ url_for('admin.nueva_cotizacion') }}" class="btn btn-success">
+                <i class="fas fa-plus"></i> Nueva Cotización
+            </a>
+        </div>
+
+        <!-- Mensajes Flash -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="card shadow">
+            <div class="card-body p-0">
+                <table class="table table-striped mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Fecha</th>
+                            <th>Cliente</th>
+                            <th>RUT</th>
+                            <th>Total Final</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in cotizaciones %}
+                        <tr>
+                            <td>#{{ c.id }}</td>
+                            <td>{{ c.fecha }}</td>
+                            <td>{{ c.nombre_cliente }}</td>
+                            <td>{{ c.rut_cliente }}</td>
+                            <td class="fw-bold">${{ "{:,.0f}".format(c.total_final) }}</td>
+                            <td>
+                                <span class="badge bg-secondary">{{ c.estado }}</span>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('admin.descargar_cotizacion', id_cotizacion=c.id) }}" 
+                                   class="btn btn-sm btn-primary" title="Descargar Excel">
+                                    <i class="fas fa-file-excel"></i> Descargar
+                                </a>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center py-3">No hay cotizaciones registradas aún.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="mt-3">
+            <a href="{{ url_for('admin.control_principal') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Volver al Panel
+            </a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
