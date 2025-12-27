@@ -316,99 +316,105 @@ def nueva_cotizacion():
 
     return render_template('cotizaciones_nueva.html')
 
-
 @admin_bp.route('/descargar_cotizacion/<int:id_cotizacion>')
 @login_required
 def descargar_cotizacion(id_cotizacion):
     """Genera y descarga el archivo Excel de una cotización específica."""
     
-    # 1. Buscar datos en la BD
-    with engine.connect() as conn:
-        cot = conn.execute(text("SELECT * FROM cotizaciones WHERE id = :id"), 
-                           {'id': id_cotizacion}).mappings().fetchone()
-    
-    if not cot:
-        flash('Cotización no encontrada', 'danger')
-        return redirect(url_for('admin.lista_cotizaciones'))
-
-    # 2. Recuperar items del JSON
-    items = json.loads(cot['detalle_items'])
-
-    # 3. Crear Excel en Memoria (openpyxl)
-    wb = Workbook()
-    ws = wb.active
-    ws.title = f"Cotizacion_{cot['id']}"
-        # --- DISEÑO DEL EXCEL MEJORADO ---
-    # Encabezados
-    ws['A1'] = "COTIZACIÓN DE SERVICIOS"
-    ws['A1'].font = Font(bold=True, size=16) # Letra más grande
-    ws.merge_cells('A1:E1')
-
-    # Datos Cliente
-    ws['A3'] = "Cliente:"; ws['B3'] = cot['nombre_cliente']
-    ws['A4'] = "RUT:";     ws['B4'] = cot['rut_cliente']
-    ws['A5'] = "Fecha:";   ws['B5'] = str(cot['fecha'])
-    ws['C3'] = "Email:";   ws['D3'] = cot['email_cliente']
-
-    # Encabezados de Tabla
-    headers = ["Descripción / Servicio", "Cantidad", "Precio Neto", "IVA", "Total Línea"]
-    ws.append([]) # Espacio
-    ws.append(headers) 
-    
-    # Estilo negrita y borde para cabecera de tabla (Fila 7)
-    thin_border = Border(left=Side(style='thin'), right=Side(style='thin'), 
-                         top=Side(style='thin'), bottom=Side(style='thin'))
-    
-    for col_num, header in enumerate(headers, 1):
-        cell = ws.cell(row=7, column=col_num)
-        cell.font = Font(bold=True)
-        cell.border = thin_border
-
-    # Rellenar filas de productos
-    for item in items:
-        # Calcular IVA y total por ítem para mostrar detallado si quieres
-        neto_linea = item['subtotal']
-        # Ojo: aquí asumo que guardaste "precio_unitario" como NETO.
+    try:
+        # 1. Buscar datos en la BD
+        with engine.connect() as conn:
+            cot = conn.execute(text("SELECT * FROM cotizaciones WHERE id = :id"), 
+                               {'id': id_cotizacion}).mappings().fetchone()
         
-        ws.append([
-            item['producto'], 
-            item['cantidad'], 
-            item['precio_unitario'],
-            neto_linea * 0.19,  # Columna IVA calculada al vuelo
-            neto_linea * 1.19   # Total con IVA
-        ])
+        if not cot:
+            flash('Cotización no encontrada', 'danger')
+            return redirect(url_for('admin.lista_cotizaciones'))
 
-    # Totales al final
-    ws.append([]) # Espacio
-    ws.append(["", "", "Total Neto:", cot['total_neto']])
-    ws.append(["", "", "IVA (19%):", cot['iva']])
-    ws.append(["", "", "TOTAL FINAL:", cot['total_final']])
+        # 2. Recuperar items del JSON
+        items = json.loads(cot['detalle_items'])
 
-    # Estilo final total (Negrita en las últimas 3 filas)
-    ult_fila = ws.max_row
-    for r in range(ult_fila-2, ult_fila+1):
-        ws[f'C{r}'].font = Font(bold=True)
-        ws[f'D{r}'].font = Font(bold=True)
+        # 3. Crear Excel
+        wb = Workbook()
+        ws = wb.active
+        ws.title = f"Cotizacion_{cot['id']}"
 
-    # --- AUTO-AJUSTE DE COLUMNAS ---
-    # Recorremos todas las columnas y ajustamos el ancho al contenido más largo
-    for column_cells in ws.columns:
-        length = max(len(str(cell.value) or "") for cell in column_cells)
-        ws.column_dimensions[column_cells[0].column_letter].width = length + 5 # +5 de margen extra
+        # --- DISEÑO ---
+        ws['A1'] = "COTIZACIÓN DE SERVICIOS"
+        ws['A1'].font = Font(bold=True, size=16)
+        ws.merge_cells('A1:E1') # Unimos hasta la columna E
 
-    # 4. Guardar en memoria virtual
-    buffer = io.BytesIO()
-    wb.save(buffer)
-    buffer.seek(0)
+        ws['A3'] = "Cliente:"; ws['B3'] = cot['nombre_cliente'] or ""
+        ws['A4'] = "RUT:";     ws['B4'] = cot['rut_cliente'] or ""
+        ws['A5'] = "Fecha:";   ws['B5'] = str(cot['fecha'])
+        ws['C3'] = "Email:";   ws['D3'] = cot['email_cliente'] or ""
 
-    nombre_archivo = f"Cotizacion_{cot['id']}_{cot['nombre_cliente'].replace(' ', '_')}.xlsx"
-    
-    return send_file(
-        buffer, 
-        as_attachment=True, 
-        download_name=nombre_archivo, 
-        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    )
+        # Encabezados de Tabla
+        headers = ["Descripción / Servicio", "Cantidad", "Precio Neto", "IVA (19%)", "Total Línea"]
+        ws.append([]) # Espacio fila 6
+        ws.append(headers) # Fila 7
+        
+        # Estilo para cabecera
+        for col_num in range(1, 6): # Columnas 1 a 5 (A a E)
+            cell = ws.cell(row=7, column=col_num)
+            cell.font = Font(bold=True)
+
+        # Rellenar filas
+        for item in items:
+            # Asegurar que sean números para evitar error matemático
+            cant = float(item.get('cantidad', 0))
+            precio = float(item.get('precio_unitario', 0))
+            subtotal = float(item.get('subtotal', 0))
+            
+            iva_linea = subtotal * 0.19
+            total_linea = subtotal * 1.19
+            
+            ws.append([
+                item.get('producto', ''), 
+                cant, 
+                precio,
+                iva_linea,
+                total_linea
+            ])
+
+        # Totales Finales
+        ws.append([]) # Espacio
+        ws.append(["", "", "Total Neto:", float(cot['total_neto'] or 0)])
+        ws.append(["", "", "IVA (19%):", float(cot['iva'] or 0)])
+        ws.append(["", "", "TOTAL FINAL:", float(cot['total_final'] or 0)])
+
+        # Negrita en totales
+        ult_fila = ws.max_row
+        for r in range(ult_fila-2, ult_fila+1):
+            ws.cell(row=r, column=3).font = Font(bold=True) # Columna C ("Total Neto:")
+            ws.cell(row=r, column=4).font = Font(bold=True) # Columna D (El valor)
+
+        # --- AUTO-AJUSTE DE COLUMNAS (Versión Segura) ---
+        # Definimos anchos mínimos para que no quede muy flaco
+        column_widths = {'A': 30, 'B': 10, 'C': 15, 'D': 15, 'E': 15}
+
+        for col_letter, width in column_widths.items():
+            ws.column_dimensions[col_letter].width = width
+
+        # 4. Guardar y Enviar
+        buffer = io.BytesIO()
+        wb.save(buffer)
+        buffer.seek(0)
+
+        nombre_cliente_safe = str(cot['nombre_cliente']).replace(' ', '_')
+        nombre_archivo = f"Cotizacion_{cot['id']}_{nombre_cliente_safe}.xlsx"
+        
+        return send_file(
+            buffer, 
+            as_attachment=True, 
+            download_name=nombre_archivo, 
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        
+    except Exception as e:
+        print(f"ERROR EXCEL: {e}") # Esto saldrá en tu consola de error log
+        flash(f'Error al generar el Excel: {str(e)}', 'danger')
+        return redirect(url_for('admin.lista_cotizaciones'))
 
 @admin_bp.route('/stock_productos')
 @login_required
