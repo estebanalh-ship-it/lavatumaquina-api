@@ -338,12 +338,11 @@ def descargar_cotizacion(id_cotizacion):
     wb = Workbook()
     ws = wb.active
     ws.title = f"Cotizacion_{cot['id']}"
-
-    # --- DISEÑO DEL EXCEL ---
+        # --- DISEÑO DEL EXCEL MEJORADO ---
     # Encabezados
     ws['A1'] = "COTIZACIÓN DE SERVICIOS"
-    ws['A1'].font = Font(bold=True, size=14)
-    ws.merge_cells('A1:D1')
+    ws['A1'].font = Font(bold=True, size=16) # Letra más grande
+    ws.merge_cells('A1:E1')
 
     # Datos Cliente
     ws['A3'] = "Cliente:"; ws['B3'] = cot['nombre_cliente']
@@ -352,35 +351,52 @@ def descargar_cotizacion(id_cotizacion):
     ws['C3'] = "Email:";   ws['D3'] = cot['email_cliente']
 
     # Encabezados de Tabla
-    headers = ["Descripción / Servicio", "Cantidad", "Precio Unit.", "Total"]
+    headers = ["Descripción / Servicio", "Cantidad", "Precio Neto", "IVA", "Total Línea"]
     ws.append([]) # Espacio
     ws.append(headers) 
     
-    # Estilo negrita para cabecera de tabla (Fila 7)
-    for col in range(1, 5):
-        ws.cell(row=7, column=col).font = Font(bold=True)
+    # Estilo negrita y borde para cabecera de tabla (Fila 7)
+    thin_border = Border(left=Side(style='thin'), right=Side(style='thin'), 
+                         top=Side(style='thin'), bottom=Side(style='thin'))
+    
+    for col_num, header in enumerate(headers, 1):
+        cell = ws.cell(row=7, column=col_num)
+        cell.font = Font(bold=True)
+        cell.border = thin_border
 
     # Rellenar filas de productos
     for item in items:
+        # Calcular IVA y total por ítem para mostrar detallado si quieres
+        neto_linea = item['subtotal']
+        # Ojo: aquí asumo que guardaste "precio_unitario" como NETO.
+        
         ws.append([
             item['producto'], 
             item['cantidad'], 
-            item['precio_unitario'], 
-            item['subtotal']
+            item['precio_unitario'],
+            neto_linea * 0.19,  # Columna IVA calculada al vuelo
+            neto_linea * 1.19   # Total con IVA
         ])
 
     # Totales al final
     ws.append([]) # Espacio
-    ws.append(["", "", "Neto:", cot['total_neto']])
+    ws.append(["", "", "Total Neto:", cot['total_neto']])
     ws.append(["", "", "IVA (19%):", cot['iva']])
-    ws.append(["", "", "TOTAL:", cot['total_final']])
+    ws.append(["", "", "TOTAL FINAL:", cot['total_final']])
 
-    # Estilo final total
+    # Estilo final total (Negrita en las últimas 3 filas)
     ult_fila = ws.max_row
-    ws[f'C{ult_fila}'].font = Font(bold=True)
-    ws[f'D{ult_fila}'].font = Font(bold=True)
+    for r in range(ult_fila-2, ult_fila+1):
+        ws[f'C{r}'].font = Font(bold=True)
+        ws[f'D{r}'].font = Font(bold=True)
 
-    # 4. Guardar en memoria virtual (buffer) en lugar de disco
+    # --- AUTO-AJUSTE DE COLUMNAS ---
+    # Recorremos todas las columnas y ajustamos el ancho al contenido más largo
+    for column_cells in ws.columns:
+        length = max(len(str(cell.value) or "") for cell in column_cells)
+        ws.column_dimensions[column_cells[0].column_letter].width = length + 5 # +5 de margen extra
+
+    # 4. Guardar en memoria virtual
     buffer = io.BytesIO()
     wb.save(buffer)
     buffer.seek(0)
