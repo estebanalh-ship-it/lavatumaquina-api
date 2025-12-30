@@ -26,6 +26,28 @@
     </nav>
 
     <div class="container mt-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert" id="auto-dismiss-alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+                
+                <!-- Este script borra la alerta a los 5 segundos -->
+                <script>
+                    setTimeout(function() {
+                        var alertElement = document.getElementById('auto-dismiss-alert');
+                        if (alertElement) {
+                            var bsAlert = new bootstrap.Alert(alertElement);
+                            bsAlert.close();
+                        }
+                    }, 5000); // 5000 milisegundos = 5 segundos
+                </script>
+            {% endif %}
+        {% endwith %}
+        <!-- FIN: CÓDIGO NUEVO PARA MENSAJES -->     
         <!-- Totales -->
         <div class="row mb-4 text-center">
             <div class="col-6 col-lg-3">
