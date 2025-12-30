@@ -27,6 +27,27 @@
     </nav>
 
     <div class="container mt-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert" id="auto-dismiss-alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+                
+                <script>
+                    setTimeout(function() {
+                        var alertElement = document.getElementById('auto-dismiss-alert');
+                        if (alertElement) {
+                            var bsAlert = new bootstrap.Alert(alertElement);
+                            bsAlert.close();
+                        }
+                    }, 5000); 
+                </script>
+            {% endif %}
+        {% endwith %}
+        <!-- FIN BLOQUE -->
         <div class="card">
             <h3 class="mb-3">Crear Agenda</h3>
             <form method="POST">
