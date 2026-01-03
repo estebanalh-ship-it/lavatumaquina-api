@@ -444,9 +444,12 @@ def descargar_cotizacion(id_cotizacion):
             print(f"Buscando imagen en: {img_path}")
             
             img =ExcelImage(img_path)
-            img.height = 110
-            ratio = img.width / img.height
-            img.width = 100 * ratio
+            original_width = img.width
+            original_height = img.height
+            new_height = 130
+            scale = new_height / original_height
+            img.height = new_height
+            img.width = original_width * scale
             img.anchor = f'A{ws.max_row +1}'
             ws.add_image(img)
         except FileNotFoundError:
