@@ -386,8 +386,6 @@ def descargar_cotizacion(id_cotizacion):
         for col_num in range(1, 6):
             cell = ws.cell(row=header_row, column=col_num)
             cell.font = Font(bold=True)
-
-        # Rellenar filas
         for item in items:
             # Asegurar que sean números para evitar error matemático
             cant = float(item.get('cantidad', 0))
@@ -404,19 +402,34 @@ def descargar_cotizacion(id_cotizacion):
                 iva_linea,
                 total_linea
             ])
-
+            current_row = ws.max_row # La fila que acabas de escribir
+            # Aplicar formato #,##0 a Precio(C), IVA(D) y Total(E)
+            ws.cell(row=current_row, column=3).number_format = '#,##0'
+            ws.cell(row=current_row, column=4).number_format = '#,##0'
+            ws.cell(row=current_row, column=5).number_format = '#,##0'
         # Totales Finales
+        thin_border = Border(
+            left=Side(style='thin', color='000000'),
+            right=Side(style='thin', color='000000'),
+            top=Side(style='thin', color='000000'),
+            bottom=Side(style='thin', color='000000')
+        )
+        # La última fila con datos de ítems es la fila actual máxima
+        last_item_row = ws.max_row
+        # Recorremos desde la fila de encabezados hasta la última de ítems
+        for row in range(header_row, last_item_row + 1):
+            for col in range(1, 6):  # Columnas A(1) a E(5)
+                ws.cell(row=row, column=col).border = thin_border
+          
         ws.append([]) # Espacio
         ws.append(["", "", "Total Neto:", int(float(cot['total_neto'] or 0))])
         ws.append(["", "", "IVA (19%):", int(float(cot['iva'] or 0))])
         ws.append(["", "", "TOTAL FINAL:", int(float(cot['total_final'] or 0))])
-
         # Negrita en totales
         ult_fila = ws.max_row
         for r in range(ult_fila-2, ult_fila+1):
             ws.cell(row=r, column=3).font = Font(bold=True) # Columna C ("Total Neto:")
             ws.cell(row=r, column=4).number_format = '#,##0' # Columna D (El valor)
-
         # --- AUTO-AJUSTE DE COLUMNAS (Versión Segura) ---
         # Definimos anchos mínimos para que no quede muy flaco
         column_widths = {'A': 30, 'B': 18, 'C': 15, 'D': 15, 'E': 15}
