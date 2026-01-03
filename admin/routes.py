@@ -439,14 +439,20 @@ def descargar_cotizacion(id_cotizacion):
             ws.column_dimensions[col_letter].width = width
 
         try:
-            img =ExcelImage('static/cot.png')
+            from flask import current_app
+            img_path = os.path.join(current_app.root_path, 'static', 'cot.png')
+            print(f"Buscando imagen en: {img_path}")
+            
+            img =ExcelImage(img_path)
             img.height = 110
             ratio = img.width / img.height
             img.width = 100 * ratio
             img.anchor = f'A{ws.max_row +1}'
             ws.add_image(img)
         except FileNotFoundError:
-            print("⚠️Imagen no encontrada REVISALO!⚠️")
+            print(f"⚠️Imagen no encontrada REVISALO!⚠️: {img_path}")
+        except Exception as e:
+            print(f"⚠️ Error insertando imagen: {e}")
             
         # 4. Guardar y Enviar
         buffer = io.BytesIO()
