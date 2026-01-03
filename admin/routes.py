@@ -376,11 +376,14 @@ def descargar_cotizacion(id_cotizacion):
 
         # Encabezados de Tabla
         headers = ["Descripción / Servicio", "Cantidad", "Precio Neto", "IVA (19%)", "Total Línea"]
-        ws.append([]) # Espacio fila 6
-        ws.append(headers) # Fila 7
+        ws.append([])       # Espacio (fila 12)
+        ws.append(headers)  # Headers (fila 13)
+        
+        # Capturar la fila donde quedaron los headers
+        header_row = ws.max_row  # <-- ✅ Esto guarda el número de fila donde están los encabezados
         
         # Estilo para cabecera
-        for col_num in range(1, 6): # Columnas 1 a 5 (A a E)
+        for col_num in range(1, 6):
             cell = ws.cell(row=header_row, column=col_num)
             cell.font = Font(bold=True)
 
