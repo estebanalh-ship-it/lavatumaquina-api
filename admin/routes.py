@@ -441,22 +441,12 @@ def descargar_cotizacion(id_cotizacion):
         try:
             from flask import current_app
             img_path = os.path.join(current_app.root_path, 'static', 'cot.png')
-            print(f"Buscando imagen en: {img_path}")
+
+            img = ExcelImage(img_path)
             
-            img =ExcelImage(img_path)
-            max_width_px = 200 
-            max_height_px = 132 
-            orig_w = img.width
-            orig_h = img.height
-            scale_w = max_width_px / orig_w
-            scale_h = max_height_px / orig_h
-            scale = min(scale_w, scale_h)
-            img.width = int(orig_w * scale)
-            img.height = int(orig_h * scale)
-            img.anchor = f'A{ws.max_row +1}'
+            img.anchor = f'A{ws.max_row + 1}'
+            
             ws.add_image(img)
-        except FileNotFoundError:
-            print(f"⚠️Imagen no encontrada REVISALO!⚠️: {img_path}")
         except Exception as e:
             print(f"⚠️ Error insertando imagen: {e}")
             
