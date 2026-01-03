@@ -437,6 +437,16 @@ def descargar_cotizacion(id_cotizacion):
         for col_letter, width in column_widths.items():
             ws.column_dimensions[col_letter].width = width
 
+        try:
+            img =ExcelImage('static/cot.png')
+            img.height = 110
+            ratio = img.width / img.height
+            img.width = 100 * ratio
+            img.anchor = f'A{ws.max_row +1}'
+            ws.add_image(img)
+        except FileNotFoundError:
+            print("⚠️Imagen no encontrada REVISALO!⚠️")
+            
         # 4. Guardar y Enviar
         buffer = io.BytesIO()
         wb.save(buffer)
