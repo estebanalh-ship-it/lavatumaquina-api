@@ -433,7 +433,7 @@ def descargar_cotizacion(id_cotizacion):
             ws.cell(row=r, column=4).number_format = '#,##0' # Columna D (El valor)
         # --- AUTO-AJUSTE DE COLUMNAS (Versión Segura) ---
         # Definimos anchos mínimos para que no quede muy flaco
-        column_widths = {'A': 30, 'B': 18, 'C': 15, 'D': 15, 'E': 15}
+        column_widths = {'A': 28, 'B': 18, 'C': 15, 'D': 15, 'E': 15}
 
         for col_letter, width in column_widths.items():
             ws.column_dimensions[col_letter].width = width
