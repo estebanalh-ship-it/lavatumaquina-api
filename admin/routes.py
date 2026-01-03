@@ -7,6 +7,7 @@ from sqlalchemy import text
 from database import engine
 from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment, Border, Side
+from openpyxl.drawing.image import Image as ExcelImage 
 from flask import send_file
 
 def login_required(f):
