@@ -339,15 +339,40 @@ def descargar_cotizacion(id_cotizacion):
         ws = wb.active
         ws.title = f"Cotizacion_{cot['id']}"
 
-        # --- DISEÑO ---
-        ws['A1'] = "COTIZACIÓN DE SERVICIOS"
-        ws['A1'].font = Font(bold=True, size=16)
-        ws.merge_cells('A1:E1') # Unimos hasta la columna E
+        # Encabezado Empresa
+        ws['A1'] = "COMERCIAL Y SERVICIOS INTEGRALES LTM SPA"
+        ws['A1'].font = Font(bold=True, size=14)
+        ws.merge_cells('A1:E1')
+        ws['A1'].alignment = Alignment(horizontal='center')
 
-        ws['A3'] = "Cliente:"; ws['B3'] = cot['nombre_cliente'] or ""
-        ws['A4'] = "RUT:";     ws['B4'] = cot['rut_cliente'] or ""
-        ws['A5'] = "Fecha:";   ws['B5'] = str(cot['fecha'])
-        ws['C3'] = "Email:";   ws['D3'] = cot['email_cliente'] or ""
+        ws['A2'] = "RUT: 78.290.357-8"
+        ws.merge_cells('A2:E2')
+        ws['A2'].alignment = Alignment(horizontal='center')
+
+        ws['A3'] = "Tel: +569 36473898"
+        ws.merge_cells('A3:E3')
+        ws['A3'].alignment = Alignment(horizontal='center')
+
+        ws['A4'] = "Emails: lavatumaquina.rengo@gmail.com | vicentealvarado987@gmail.com"
+        ws.merge_cells('A4:E4')
+        ws['A4'].alignment = Alignment(horizontal='center')
+
+        ws['A5'] = "Dirección: Elicura #375, Rengo, Sexta Región, Chile."
+        ws.merge_cells('A5:E5')
+        ws['A5'].alignment = Alignment(horizontal='center')
+
+        # --- COMIENZO COTIZACION ---
+        ws['A7'] = "COTIZACIÓN DE SERVICIOS"
+        ws['A7'].font = Font(bold=True, size=16)
+        ws.merge_cells('A7:E7')
+        ws['A7'].alignment = Alignment(horizontal='center')
+
+        # Datos del Cliente (bajamos desde fila 9)
+        ws['A9']  = "Cliente:";  ws['B9']  = cot['nombre_cliente'] or ""
+        ws['A10'] = "RUT:";      ws['B10'] = cot['rut_cliente'] or ""
+        ws['A11'] = "Fecha:";    ws['B11'] = str(cot['fecha'])
+        ws['C9']  = "Email:";    ws['D9']  = cot['email_cliente'] or ""
+        ws['C10'] = "Teléfono:"; ws['D10'] = cot.get('telefono_cliente', '') or ""
 
         # Encabezados de Tabla
         headers = ["Descripción / Servicio", "Cantidad", "Precio Neto", "IVA (19%)", "Total Línea"]
@@ -356,7 +381,7 @@ def descargar_cotizacion(id_cotizacion):
         
         # Estilo para cabecera
         for col_num in range(1, 6): # Columnas 1 a 5 (A a E)
-            cell = ws.cell(row=7, column=col_num)
+            cell = ws.cell(row=header_row, column=col_num)
             cell.font = Font(bold=True)
 
         # Rellenar filas
