@@ -407,15 +407,15 @@ def descargar_cotizacion(id_cotizacion):
 
         # Totales Finales
         ws.append([]) # Espacio
-        ws.append(["", "", "Total Neto:", float(cot['total_neto'] or 0)])
-        ws.append(["", "", "IVA (19%):", float(cot['iva'] or 0)])
-        ws.append(["", "", "TOTAL FINAL:", float(cot['total_final'] or 0)])
+        ws.append(["", "", "Total Neto:", int(float(cot['total_neto'] or 0))])
+        ws.append(["", "", "IVA (19%):", int(float(cot['iva'] or 0))])
+        ws.append(["", "", "TOTAL FINAL:", int(float(cot['total_final'] or 0))])
 
         # Negrita en totales
         ult_fila = ws.max_row
         for r in range(ult_fila-2, ult_fila+1):
             ws.cell(row=r, column=3).font = Font(bold=True) # Columna C ("Total Neto:")
-            ws.cell(row=r, column=4).font = Font(bold=True) # Columna D (El valor)
+            ws.cell(row=r, column=4).number_format = '#,##0' # Columna D (El valor)
 
         # --- AUTO-AJUSTE DE COLUMNAS (Versión Segura) ---
         # Definimos anchos mínimos para que no quede muy flaco
