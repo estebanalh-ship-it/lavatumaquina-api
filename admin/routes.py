@@ -375,7 +375,7 @@ def descargar_cotizacion(id_cotizacion):
         ws['C10'] = "Teléfono:"; ws['D10'] = cot.get('telefono_cliente', '') or ""
 
         # Encabezados de Tabla
-        headers = ["Descripción / Servicio", "Cantidad", "Precio Neto", "IVA (19%)", "Total Línea"]
+        headers = ["Descripción / Servicio", "Cantidad", "Precio Neto", "IVA (19%)", "Total"]
         ws.append([])       # Espacio (fila 12)
         ws.append(headers)  # Headers (fila 13)
         
