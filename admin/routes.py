@@ -444,7 +444,7 @@ def descargar_cotizacion(id_cotizacion):
 
             img = ExcelImage(img_path)
             
-            img.anchor = f'A{ws.max_row + 1}'
+            img.anchor = f'A{ws.max_row}'
             
             ws.add_image(img)
         except Exception as e:
