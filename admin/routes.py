@@ -270,7 +270,9 @@ def nueva_cotizacion():
         rut = request.form.get('rut')
         nombre = request.form.get('nombre')
         email = request.form.get('email')
-        telefono = request.form.get('telefono')
+        telefono = request.form.get('telefono', '').strip()
+        if telefono and not telefono.startswith('+569'):
+            telefono = '+569' + telefono
         productos = request.form.getlist('items_producto[]')
         cantidades = request.form.getlist('items_cantidad[]')
         precios = request.form.getlist('items_precio[]')
@@ -486,7 +488,9 @@ def editar_cotizacion(id_cotizacion):
         rut     = request.form.get('rut')
         nombre  = request.form.get('nombre')
         email   = request.form.get('email')
-        telefono = request.form.get('telefono')
+        telefono = request.form.get('telefono', '').strip()
+        if telefono and not telefono.startswith('+569'):
+            telefono = '+569' + telefono
         productos  = request.form.getlist('items_producto[]')
         cantidades = request.form.getlist('items_cantidad[]')
         precios    = request.form.getlist('items_precio[]')
