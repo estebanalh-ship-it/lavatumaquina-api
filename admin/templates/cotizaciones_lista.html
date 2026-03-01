@@ -66,6 +66,10 @@
                                 <span class="badge bg-secondary">{{ c.estado }}</span>
                             </td>
                             <td>
+                                <a href="{{ url_for('admin.editar_cotizacion', id_cotizacion=c.id) }}" 
+                                   class="btn btn-sm btn-warning" title="Editar Cotización">
+                                    <i class="fas fa-edit"></i> Editar
+                                </a>
                                 <a href="{{ url_for('admin.descargar_cotizacion', id_cotizacion=c.id) }}" 
                                    class="btn btn-sm btn-primary" title="Descargar Excel">
                                     <i class="fas fa-file-excel"></i> Descargar
