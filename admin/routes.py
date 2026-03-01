@@ -239,21 +239,30 @@ def gestion_precios():
         """)).mappings().all()
 
     return render_template('gestion_precios.html', servicios=servicios)
-# --- MÓDULO DE COTIZACIONES ---
+
 @admin_bp.route('/cotizaciones')
 @login_required
 def lista_cotizaciones():
-    """Muestra la tabla con el historial de cotizaciones."""
+    pagina_actual = request.args.get('pagina', 1, type=int)
+    por_pagina = 15
+    offset = (pagina_actual - 1) * por_pagina
     with engine.connect() as conn:
-        # Traemos solo los datos resumen, no el detalle JSON pesado
+        total = conn.execute(text(
+            "SELECT COUNT(*) FROM cotizaciones"
+        )).scalar()
         cotizaciones = conn.execute(text("""
             SELECT id, fecha, nombre_cliente, rut_cliente, total_final, estado 
             FROM cotizaciones 
             ORDER BY id DESC
-        """)).mappings().all()
-    
-    return render_template('cotizaciones_lista.html', cotizaciones=cotizaciones)
-
+            LIMIT :limite OFFSET :offset
+        """), {'limite': por_pagina, 'offset': offset}).mappings().all()
+    import math
+    total_paginas = math.ceil(total / por_pagina)
+    return render_template('cotizaciones_lista.html',
+        cotizaciones=cotizaciones,
+        pagina_actual=pagina_actual,
+        total_paginas=total_paginas
+    )
 @admin_bp.route('/nueva_cotizacion', methods=['GET', 'POST'])
 @login_required
 def nueva_cotizacion():
