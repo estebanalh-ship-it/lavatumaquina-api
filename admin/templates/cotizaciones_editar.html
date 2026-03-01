@@ -29,7 +29,12 @@
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">Teléfono</label>
-                        <input type="text" name="telefono" class="form-control" value="{{ cot.telefono_cliente }}">
+                        <div class="input-group">
+                            <span class="input-group-text">+569</span>
+                            <input type="text" name="telefono" id="campo-telefono"
+                                class="form-control" placeholder="12345678" maxlength="8"
+                                value="{{ cot.telefono_cliente | replace('+569', '') if cot.telefono_cliente else '' }}">
+                        </div>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Email</label>
