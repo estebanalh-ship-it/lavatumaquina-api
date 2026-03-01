@@ -2,7 +2,7 @@ from functools import wraps
 import os
 import json
 import io
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify
 from sqlalchemy import text
 from database import engine
 from openpyxl import Workbook
