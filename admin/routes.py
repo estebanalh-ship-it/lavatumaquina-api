@@ -545,6 +545,30 @@ def editar_cotizacion(id_cotizacion):
 def stock_productos():
     return render_template('stock_productos.html')
 
+@admin_bp.route('/buscar_cliente_admin')
+@login_required
+def buscar_cliente_admin():
+    rut = request.args.get('rut')
+    try:
+        with engine.connect() as conn:
+            cliente = conn.execute(text(
+                "SELECT * FROM clientes WHERE rut = :rut"
+            ), {'rut': rut}).mappings().fetchone()
+
+        if cliente:
+            telefono_bd = str(cliente['telefono']) if cliente['telefono'] else ""
+            telefono_limpio = telefono_bd.replace('+569', '')
+            return jsonify({
+                'existe': True,
+                'nombre': cliente['nombre'],
+                'email': cliente['email'],
+                'telefono': telefono_limpio
+            })
+        else:
+            return jsonify({'existe': False})
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
 @admin_bp.route('/logout')
 @login_required
 def logout():
