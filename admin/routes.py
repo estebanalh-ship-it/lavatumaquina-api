@@ -266,32 +266,22 @@ def lista_cotizaciones():
 @admin_bp.route('/nueva_cotizacion', methods=['GET', 'POST'])
 @login_required
 def nueva_cotizacion():
-    """Formulario para crear y guardar una nueva cotización."""
     if request.method == 'POST':
-        # 1. Datos del Cliente
         rut = request.form.get('rut')
         nombre = request.form.get('nombre')
         email = request.form.get('email')
         telefono = request.form.get('telefono')
-
-        # 2. Datos de los Ítems (Productos)
-        # En el HTML usaremos inputs con nombres como name="items_producto[]"
-        # .getlist() nos permite recuperar todos los valores en una lista
         productos = request.form.getlist('items_producto[]')
         cantidades = request.form.getlist('items_cantidad[]')
         precios = request.form.getlist('items_precio[]')
-
-        # 3. Procesar los datos y calcular totales (Backend es más seguro que JS)
         lista_items = []
         total_neto = 0
-
-        # Zip une las tres listas para recorrerlas juntas (fila por fila)
         for prod, cant, prec in zip(productos, cantidades, precios):
-            if prod.strip(): # Solo si hay nombre de producto
+            if prod.strip():
                 c = float(cant) if cant else 0
                 p = float(prec) if prec else 0
                 subtotal = c * p
-                
+        
                 lista_items.append({
                     "producto": prod,
                     "cantidad": c,
@@ -302,28 +292,38 @@ def nueva_cotizacion():
 
         iva = total_neto * 0.19
         total_final = total_neto + iva
-        
-        # Convertimos la lista de Python a Texto JSON para guardarla en BD
+        total_neto = round(total_neto /10) * 10
+        iva        = round(iva /10) *10
+        total_final = round(total_final /10) *10
         items_json = json.dumps(lista_items)
-
         try:
             with engine.begin() as conn:
-                conn.execute(text("""
-                    INSERT INTO cotizaciones 
-                    (rut_cliente, nombre_cliente, email_cliente, telefono_cliente, 
-                     total_neto, iva, total_final, detalle_items, fecha)
-                    VALUES (:rut, :nombre, :email, :tel, :neto, :iva, :final, :items, NOW())
-                """), {
-                    'rut': rut, 'nombre': nombre, 'email': email, 'tel': telefono,
-                    'neto': total_neto, 'iva': iva, 'final': total_final, 'items': items_json
-                })
-            
+                    cliente_existente = conn.execute(text(
+                        "SELECT id_cliente FROM clientes WHERE rut = :rut"
+                    ), {'rut': rut}).fetchone()
+                    if not cliente_existente:
+                        conn.execute(text("""
+                            INSERT INTO clientes (rut, nombre, email, telefono, fecha_registro, activo)
+                            VALUES (:rut, :nombre, :email, :telefono, NOW(), 1)
+                        """), {
+                            'rut': rut,
+                            'nombre': nombre,
+                            'email': email,
+                            'telefono': telefono
+                        })
+                    conn.execute(text("""
+                        INSERT INTO cotizaciones 
+                        (rut_cliente, nombre_cliente, email_cliente, telefono_cliente, 
+                         total_neto, iva, total_final, detalle_items, fecha)
+                        VALUES (:rut, :nombre, :email, :tel, :neto, :iva, :final, :items, NOW())
+                    """), {
+                        'rut': rut, 'nombre': nombre, 'email': email, 'tel': telefono,
+                        'neto': total_neto, 'iva': iva, 'final': total_final, 'items': items_json
+                    })
             flash('✅ Cotización creada con éxito.', 'success')
             return redirect(url_for('admin.lista_cotizaciones'))
-
         except Exception as e:
             flash(f'❌ Error al guardar cotización: {e}', 'danger')
-
     return render_template('cotizaciones_nueva.html')
 
 @admin_bp.route('/descargar_cotizacion/<int:id_cotizacion>')
@@ -506,6 +506,9 @@ def editar_cotizacion(id_cotizacion):
                 total_neto += subtotal
         iva         = total_neto * 0.19
         total_final = total_neto + iva
+        total_neto = round(total_neto /10) * 10
+        iva        = round(iva /10) *10
+        total_final = round(total_final /10) *10
         items_json  = json.dumps(lista_items)
         try:
             with engine.begin() as conn:
