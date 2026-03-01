@@ -470,6 +470,67 @@ def descargar_cotizacion(id_cotizacion):
         flash(f'Error al generar el Excel: {str(e)}', 'danger')
         return redirect(url_for('admin.lista_cotizaciones'))
 
+@admin_bp.route('/editar_cotizacion/<int:id_cotizacion>', methods=['GET', 'POST'])
+@login_required
+def editar_cotizacion(id_cotizacion):
+    if request.method == 'POST':
+        rut     = request.form.get('rut')
+        nombre  = request.form.get('nombre')
+        email   = request.form.get('email')
+        telefono = request.form.get('telefono')
+        productos  = request.form.getlist('items_producto[]')
+        cantidades = request.form.getlist('items_cantidad[]')
+        precios    = request.form.getlist('items_precio[]')
+        lista_items = []
+        total_neto = 0
+        for prod, cant, prec in zip(productos, cantidades, precios):
+            if prod.strip():
+                c = float(cant) if cant else 0
+                p = float(prec) if prec else 0
+                subtotal = c * p
+                lista_items.append({
+                    "producto": prod,
+                    "cantidad": c,
+                    "precio_unitario": p,
+                    "subtotal": subtotal
+                })
+                total_neto += subtotal
+        iva         = total_neto * 0.19
+        total_final = total_neto + iva
+        items_json  = json.dumps(lista_items)
+        try:
+            with engine.begin() as conn:
+                conn.execute(text("""
+                    UPDATE cotizaciones
+                    SET rut_cliente      = :rut,
+                        nombre_cliente   = :nombre,
+                        email_cliente    = :email,
+                        telefono_cliente = :tel,
+                        total_neto       = :neto,
+                        iva              = :iva,
+                        total_final      = :final,
+                        detalle_items    = :items
+                    WHERE id = :id
+                """), {
+                    'rut': rut, 'nombre': nombre, 'email': email, 'tel': telefono,
+                    'neto': total_neto, 'iva': iva, 'final': total_final,
+                    'items': items_json, 'id': id_cotizacion
+                })
+            flash('✅ Cotización actualizada con éxito.', 'success')
+            return redirect(url_for('admin.lista_cotizaciones'))
+        except Exception as e:
+            flash(f'❌ Error al actualizar: {e}', 'danger')
+    with engine.connect() as conn:
+        cot = conn.execute(text(
+            "SELECT * FROM cotizaciones WHERE id = :id"
+        ), {'id': id_cotizacion}).mappings().fetchone()
+
+    if not cot:
+        flash('Cotización no encontrada.', 'danger')
+        return redirect(url_for('admin.lista_cotizaciones'))
+    items = json.loads(cot['detalle_items'])
+    return render_template('cotizaciones_editar.html', cot=cot, items=items)
+    
 @admin_bp.route('/stock_productos')
 @login_required
 def stock_productos():
