@@ -16,19 +16,15 @@
 
 ✅ **Sistema de Agendamiento Inteligente**
 - Reservas en línea 24/7
-- Selección de tipos de lavado (básico, premium, detailing)
+- Selección de tipos de lavado (general y premium)
 - Gestión de horarios y disponibilidad
-
-✅ **Servicios Complementarios**
-- Módulo de servicios mecánicos básicos
-- Catálogo de servicios adicionales
-- Sistema de precios integrado
 
 ✅ **Panel Administrativo Avanzado**
 - Gestión centralizada para dueños y socios
 - Control de citas y clientes
 - Reportes y estadísticas
-- Sistema de usuarios con permisos diferenciados
+- Modulo cotizaciones.
+- Modulo cambio de precios.
 
 ✅ **Interfaz Optimizada**
 - Diseño responsive (móvil y escritorio)
@@ -37,7 +33,7 @@
 
 ## 🎯 Objetivo del Proyecto
 
-Digitalizar completamente las operaciones del lavadero "Lava Tu Máquina" para:
+Digitalizar completamente las operaciones del servicio automotriz "Lava Tu Máquina" para:
 - **Automatizar** el proceso de reservas
 - **Mejorar** la experiencia del cliente
 - **Optimizar** la gestión administrativa
@@ -70,57 +66,14 @@ Digitalizar completamente las operaciones del lavadero "Lava Tu Máquina" para:
 ### 👤 **Módulo Cliente**
 - Registro y autenticación de usuarios
 - Sistema de reservas online
-- Historial de servicios contratados
-- Perfil personalizado
 - Notificaciones por email/SMS
 
 ### 🛠️ **Módulo Servicios**
 - Catálogo de lavados especializados
 - Servicios mecánicos básicos
 - Sistema de precios dinámico
-- Paquetes y promociones
 - Gestión de inventario
-
-### 👔 **Módulo Administrativo**
-- Dashboard con métricas clave
-- Gestión de empleados y horarios
-- Control financiero y reportes
-- Configuración del sistema
-- Backups automáticos
-
-### 📱 **Módulo Móvil**
-- Versión responsive para smartphones
-- Acceso rápido a reservas
-- Notificaciones push
-- Geolocalización del negocio
-
-## 📅 Roadmap de Desarrollo
-
-### 🟢 **Fase 1: Desarrollo Base (Diciembre 2025)**
-- [x] Diseño de arquitectura del sistema
-- [x] Maquetación de interfaz principal
-- [x] Configuración de base de datos MySQL
-- [x] Sistema de autenticación básico
-- [x] Módulo de agendamiento inicial
-
-### 🟡 **Fase 2: Funcionalidades Avanzadas (Enero 2026)**
-- [ ] Panel administrativo completo
-- [ ] Sistema de notificaciones
-- [ ] Gestión de múltiples sucursales
-- [ ] Reportes automáticos
-- [ ] Integración con calendarios
-
-### 🔵 **Fase 3: Optimización (Enero 2026)**
-- [ ] Pruebas de carga y rendimiento
-- [ ] Optimización para móviles
-- [ ] Documentación técnica completa
-- [ ] Seguridad y backup automático
-
-### 🚀 **Fase 4: Lanzamiento (Enero 2026)**
-- [ ] Repositorio público en GitHub
-- [ ] Guía de instalación detallada
-- [ ] Video tutorial de uso
-- [ ] Foro de soporte comunitario
+- Gestión de cotizaciones
 
 ## 🌟 Filosofía del Proyecto
 
@@ -132,7 +85,7 @@ Creemos firmemente en la democratización del conocimiento tecnológico. Este pr
 - Compartir código **enriquece** a toda la comunidad
 - Los principiantes merecen **recursos de calidad**
 
-**Por eso, en Enero 2026, todo el código fuente estará disponible públicamente para:**
+**Por eso, en ABRIL 2026, todo el código fuente estará disponible públicamente para:**
 - 🔍 **Estudiar** - Aprende de un proyecto real en producción
 - 🛠️ **Usar** - Implementa tu propia versión
 - 📈 **Mejorar** - Contribuye con nuevas funcionalidades
@@ -143,10 +96,10 @@ Creemos firmemente en la democratización del conocimiento tecnológico. Este pr
 **Desarrollador Autodidacta** | *Proyecto de Crecimiento Personal*
 
 💼 Rol: Desarrollador Full-Stack Principiante
-📍 Ubicación: Rengo, Región de O'Higgins, Chile
+📍 Ubicación: Santiago- Ñuñoa, Región Metropolitana. Rengo, Región de O'Higgins, Chile
 🎓 Enfoque: Aprendizaje mediante proyectos reales
-🚀 Meta: Convertirse en desarrollador profesional
-📧 Contacto: Disponible en Enero 2026
+🚀 Meta: Convertirse en desarrollador profesional / disponible para ofertas laborales.
+📧 Contacto: esteban.alh@gmail.com / +56966822259
 
 ### 🎯 Motivación
 Este proyecto representa mi primer sistema web completo, desarrollado con pasión y dedicación. Como principiante en el mundo del desarrollo, decidí crear una solución real para un negocio local, combinando aprendizaje técnico con impacto práctico.
@@ -162,11 +115,9 @@ Este proyecto representa mi primer sistema web completo, desarrollado con pasió
 
 🔮 Próximos Pasos
 
-    📅 Enero 2026: Repositorio público en GitHub
+    📅 Abril 2026: Repositorio público en GitHub
 
     📚 Documentación: Guías de instalación y uso
-
-    🎥 Tutoriales: Videos paso a paso
 
     🤝 Comunidad: Foro para preguntas y soporte
 
