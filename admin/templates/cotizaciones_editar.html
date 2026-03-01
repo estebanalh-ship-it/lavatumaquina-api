@@ -1,1 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Cotización #{{ cot.id }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-light">
+<div class="container mt-4 mb-5">
+    <h2 class="mb-4">✏️ Editar Cotización #{{ cot.id }}</h2>
 
+    <form method="POST" action="{{ url_for('admin.editar_cotizacion', id_cotizacion=cot.id) }}">
+
+        <!-- DATOS CLIENTE (pre-cargados con los valores actuales) -->
+        <div class="card shadow mb-4">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0">Datos del Cliente</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label">RUT</label>
+                        <input type="text" name="rut" class="form-control" value="{{ cot.rut_cliente }}" required>
+                    </div>
+                    <div class="col-md-5">
+                        <label class="form-label">Nombre / Razón Social</label>
+                        <input type="text" name="nombre" class="form-control" value="{{ cot.nombre_cliente }}" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Teléfono</label>
+                        <input type="text" name="telefono" class="form-control" value="{{ cot.telefono_cliente }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Email</label>
+                        <input type="email" name="email" class="form-control" value="{{ cot.email_cliente }}">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ITEMS (se generan desde el JSON guardado) -->
+        <div class="card shadow mb-4">
+            <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Detalle de Servicios</h5>
+                <button type="button" class="btn btn-sm btn-light" onclick="agregarFila()">
+                    <i class="fas fa-plus"></i> Agregar Fila
+                </button>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-bordered mb-0" id="tablaItems">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width:40%">Descripción</th>
+                            <th style="width:15%">Cantidad</th>
+                            <th style="width:20%">Precio Neto</th>
+                            <th style="width:20%">Total Fila</th>
+                            <th style="width:5%"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="cuerpoTabla">
+                        {% for item in items %}
+                        <tr class="fila-item">
+                            <td><input type="text" name="items_producto[]" class="form-control" value="{{ item.producto }}" required></td>
+                            <td><input type="number" name="items_cantidad[]" class="form-control text-end" value="{{ item.cantidad }}" min="1" oninput="calcularTotales()" required></td>
+                            <td><input type="number" name="items_precio[]" class="form-control text-end" value="{{ item.precio_unitario }}" min="0" oninput="calcularTotales()" required></td>
+                            <td class="text-end align-middle fw-bold span-subtotal">${{ "{:,.0f}".format(item.subtotal) }}</td>
+                            <td class="text-center">
+                                <button type="button" class="btn btn-danger btn-sm" onclick="eliminarFila(this)">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer bg-white">
+                <div class="row justify-content-end text-end">
+                    <div class="col-md-4">
+                        <p class="mb-1">Neto: <span id="displayNeto">$0</span></p>
+                        <p class="mb-1">IVA (19%): <span id="displayIVA">$0</span></p>
+                        <h4 class="text-success fw-bold">Total: <span id="displayTotal">$0</span></h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between">
+            <a href="{{ url_for('admin.lista_cotizaciones') }}" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-warning btn-lg text-dark">
+                <i class="fas fa-save"></i> Guardar Cambios
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    function formatearMoneda(v) {
+        return new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(v);
+    }
+    function calcularTotales() {
+        let neto = 0;
+        document.querySelectorAll('.fila-item').forEach(fila => {
+            const c = parseFloat(fila.querySelector('input[name="items_cantidad[]"]').value) || 0;
+            const p = parseFloat(fila.querySelector('input[name="items_precio[]"]').value) || 0;
+            const sub = c * p;
+            fila.querySelector('.span-subtotal').textContent = formatearMoneda(sub);
+            neto += sub;
+        });
+        document.getElementById('displayNeto').textContent  = formatearMoneda(neto);
+        document.getElementById('displayIVA').textContent   = formatearMoneda(neto * 0.19);
+        document.getElementById('displayTotal').textContent = formatearMoneda(neto * 1.19);
+    }
+    function agregarFila() {
+        const tbody = document.getElementById('cuerpoTabla');
+        const fila = document.createElement('tr');
+        fila.className = 'fila-item';
+        fila.innerHTML = `
+            <td><input type="text" name="items_producto[]" class="form-control" required></td>
+            <td><input type="number" name="items_cantidad[]" class="form-control text-end" value="1" min="1" oninput="calcularTotales()" required></td>
+            <td><input type="number" name="items_precio[]" class="form-control text-end" placeholder="0" min="0" oninput="calcularTotales()" required></td>
+            <td class="text-end align-middle fw-bold span-subtotal">$0</td>
+            <td class="text-center">
+                <button type="button" class="btn btn-danger btn-sm" onclick="eliminarFila(this)">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>`;
+        tbody.appendChild(fila);
+    }
+    function eliminarFila(btn) {
+        btn.closest('tr').remove();
+        calcularTotales();
+    }
+    // Calcular totales al cargar la página con los datos existentes
+    window.onload = calcularTotales;
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
