@@ -171,7 +171,7 @@
             }
             clearTimeout(timerBusqueda);
             timerBusqueda = setTimeout(function() {
-                fetch('/buscar_cliente?rut=' + encodeURIComponent(rut))
+                fetch('/admin/buscar_cliente_admin?rut=' + encodeURIComponent(rut))
                     .then(response => response.json())
                     .then(data => {
                         const mensaje = document.getElementById('mensaje-cliente');
