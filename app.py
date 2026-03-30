@@ -1,25 +1,20 @@
 from flask import Flask, request, jsonify, redirect, url_for, render_template
 import mysql.connector
+import os
 from flask_mail import Mail, Message
 from database import db_config
-
 from dotenv import load_dotenv
 from admin import admin_bp
 load_dotenv()
-
-
 app = Flask(__name__)
-app.secret_key = 'dianadegales2025'
-
+app.secret_key = os.environ.get("SECRET_KEY")
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'lavatumaquina.rengo@gmail.com'
-app.config['MAIL_PASSWORD'] = 'giag cnyt huxv iuyq'
-app.config['MAIL_DEFAULT_SENDER'] = ('Lava Tu Maquina', 'lavatumaquina.rengo@gmail.com')
-
+app.config['MAIL_USERNAME'] = os.environ.get("MAIL_USERNAME")
+app.config['MAIL_PASSWORD'] = os.environ.get("MAIL_PASSWORD")
+app.config['MAIL_DEFAULT_SENDER'] = ('Lava Tu Maquina', os.environ.get("MAIL_USERNAME"))
 mail = Mail(app)
-
 app.register_blueprint(admin_bp, url_prefix='/admin')
 
 def enviar_correos_confirmacion(datos_cita):
