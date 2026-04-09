@@ -5,7 +5,7 @@ from flask_mail import Mail, Message
 from database import db_config
 from dotenv import load_dotenv
 from admin import admin_bp
-load_dotenv()
+load_dotenv('/home/Lavatumaquina01/proyecto01/.env')
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY")
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
