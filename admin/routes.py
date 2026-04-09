@@ -2,6 +2,7 @@ from functools import wraps
 import os
 import json
 import io
+import math
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify
 from sqlalchemy import text
 from database import engine
@@ -252,7 +253,6 @@ def lista_cotizaciones():
             ORDER BY id DESC
             LIMIT :limite OFFSET :offset
         """), {'limite': por_pagina, 'offset': offset}).mappings().all()
-    import math
     total_paginas = math.ceil(total / por_pagina)
     return render_template('cotizaciones_lista.html',
         cotizaciones=cotizaciones,
