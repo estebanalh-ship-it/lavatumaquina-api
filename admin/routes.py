@@ -34,10 +34,6 @@ def login():
         EMAIL_ADMIN = os.getenv('EMAIL_ADMIN')
         PASSWORD_ADMIN = os.getenv('PASSWORD_ADMIN')
 
-        print(f"DEBUG - EMAIL_ADMIN: '{EMAIL_ADMIN}'")
-        print(f"DEBUG - PASSWORD_ADMIN: '{PASSWORD_ADMIN}'")
-        print(f"DEBUG - Input email: '{email}', password: '{password}'")
-
         if email == EMAIL_ADMIN and password == PASSWORD_ADMIN:
             session['admin_logged_in'] = True
             flash('¡Inicio de sesión exitoso!', 'success')
