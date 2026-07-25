@@ -128,14 +128,15 @@ def lavado():
         cursor.execute("""
             SELECT DISTINCT tamaño_auto as valor, 
                    CASE 
-                       WHEN tamaño_auto LIKE '%pequeño%' THEN 'Auto Pequeño (City Car)'
-                       WHEN tamaño_auto LIKE '%mediano%' THEN 'Auto Mediano (Sedan - Suv)'
-                       WHEN tamaño_auto LIKE '%grande%' THEN 'Auto Grande (Camioneta - Jeep)'
+                       WHEN tamaño_auto = 'Pequeño City Car' THEN 'Auto Pequeño (City Car)'
+                       WHEN tamaño_auto = 'Mediano Sedan-Sub' THEN 'Auto Mediano (Sedan - Suv)'
+                       WHEN tamaño_auto = 'Grande Camioneta' THEN 'Auto Grande (Camioneta - Jeep)'
+                       WHEN tamaño_auto = 'Lavado Premium Full' THEN 'Lavado Premium Full'
                        ELSE tamaño_auto 
                    END as nombre_mostrar
             FROM servicios
             WHERE tipo_servicio = 'lavado' AND tamaño_auto IS NOT NULL
-            ORDER BY FIELD(tamaño_auto, 'pequeño City Car', 'mediano Sedan - suv', 'grande Camioneta')
+            ORDER BY FIELD(tamaño_auto, 'Pequeño City Car', 'Mediano Sedan-Sub', 'Grande Camioneta', 'Lavado Premium Full')
         """)
         tamanos_lavado = cursor.fetchall()
         
@@ -159,7 +160,7 @@ def lavado():
 def get_lavados(tamano):
     """
     Recibe el valor EXACTO de la columna tamaño_auto de la BD.
-    Ej: 'pequeño City Car'
+    Ej: 'Pequeño City Car'
     """
     try:
         conexion = mysql.connector.connect(**db_config)
