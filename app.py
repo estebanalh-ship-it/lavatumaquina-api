@@ -122,7 +122,7 @@ def lavado():
         cursor.execute("""
             SELECT DISTINCT tamaño_auto AS nombre_tamaño
             FROM servicios
-            WHERE tipo_servicio = 'lavado' AND tamaño_auto IS NOT NULL AND tamaño_auto != 'TODOS'
+            WHERE tipo_servicio = 'lavado' AND tamaño_auto IS NOT NULL AND tamaño_auto != 'Lavado Premium Full'
             ORDER BY FIELD(tamaño_auto, 'Pequeño City Car', 'Mediano Sedan-Sub', 'Grande Camioneta')
         """)
         tamanos_lavado = cursor.fetchall()
@@ -130,7 +130,8 @@ def lavado():
         cursor.execute("""
             SELECT id_servicio, nombre, precio, tamaño_auto
             FROM servicios
-            WHERE tipo_servicio = 'lavado' AND (tamaño_auto = 'Pequeño City Car' OR tamaño_auto = 'TODOS')
+            WHERE tipo_servicio = 'lavado' AND (tamaño_auto IN ('Pequeño City Car', 'Mediano Sedan-Sub', 'Grande Camioneta') OR nombre = 'Lavado Premium Full')
+            ORDER BY id_servicio ASC
         """)
         servicios_lavado_actual = cursor.fetchall()
         for servicio in servicios_lavado_actual:
@@ -157,19 +158,13 @@ def get_lavados(tamano):
         conexion = mysql.connector.connect(**db_config)
         cursor = conexion.cursor(dictionary=True)
         
-        # Si el tamaño es 'TODOS', obtener todos los servicios, si no, filtrar por tamaño específico o TODOS
-        if tamano == 'TODOS':
-            cursor.execute("""
-                SELECT id_servicio, nombre, precio
-                FROM servicios
-                WHERE tipo_servicio = 'lavado' AND tamaño_auto = 'TODOS'
-            """)
-        else:
-            cursor.execute("""
-                SELECT id_servicio, nombre, precio
-                FROM servicios
-                WHERE tipo_servicio = 'lavado' AND (tamaño_auto = %s OR tamaño_auto = 'TODOS')
-            """, (tamano,))
+        # Filtrar por tamaño específico O el servicio Premium Full (por nombre), ordenado por ID
+        cursor.execute("""
+            SELECT id_servicio, nombre, precio
+            FROM servicios
+            WHERE tipo_servicio = 'lavado' AND (tamaño_auto = %s OR nombre = 'Lavado Premium Full')
+            ORDER BY id_servicio ASC
+        """, (tamano,))
         
         servicios = cursor.fetchall()
         for servicio in servicios:
