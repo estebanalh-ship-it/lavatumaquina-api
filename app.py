@@ -23,7 +23,6 @@ def enviar_correos_confirmacion(datos_cita):
         msg_cliente = Message(asunto_cliente, recipients=[datos_cita['email_cliente']])
         msg_cliente.html = f"""<h3>Hola {datos_cita['nombre_cliente']},</h3><p>Tu cita ha sido confirmada con éxito.</p><p><b>Detalles de la reserva:</b></p><ul><li><b>Servicio:</b> {datos_cita['nombre_servicio']}</li><li><b>Fecha:</b> {datos_cita['fecha']}</li><li><b>Hora:</b> {datos_cita['hora']}</li></ul><p>¡Te esperamos!</p><p>Atentamente,<br>El equipo de <b>Lava Tu Maquina</b></p>"""
         mail.send(msg_cliente)
-
         asunto_empresa = f"Nueva Cita Agendada: {datos_cita['nombre_servicio']} para {datos_cita['nombre_cliente']}"
         msg_empresa = Message(asunto_empresa, recipients=['lavatumaquina.rengo@gmail.com'])
         msg_empresa.html = f"""<h3>Se ha agendado una nueva cita:</h3><ul><li><b>Cliente:</b> {datos_cita['nombre_cliente']}</li><li><b>Email:</b> {datos_cita['email_cliente']}</li><li><b>Teléfono:</b> {datos_cita['telefono']}</li><li><b>Patente:</b> {datos_cita['patente']}</li><li><b>Servicio:</b> {datos_cita['nombre_servicio']}</li><li><b>Fecha:</b> {datos_cita['fecha']}</li><li><b>Hora:</b> {datos_cita['hora']}</li></ul>"""
@@ -32,7 +31,7 @@ def enviar_correos_confirmacion(datos_cita):
     except Exception as e:
         print(f"ERROR AL ENVIAR CORREOS: {e}")
 
-BANDAS_HORARIAS_LAVADOS = ['09:00-10:00', '10:00-11:00', '15:00-16:00', '16:00-17:00']
+BANDAS_HORARIAS_LAVADOS = ['09:00', '11:00', '15:00', '16:00]
 BANDAS_HORARIAS_MECANICO = ['11:00-12:00', '12:00-13:00']
 BANDAS_HORARIAS_LAVADOTAPIZ = ['11:00-12:00', '12:00-13:00']
 
