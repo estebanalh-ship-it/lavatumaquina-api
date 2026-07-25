@@ -93,12 +93,16 @@ def lavado():
             )
             conexion.commit()
 
+            cursor.execute("SELECT nombre FROM servicios WHERE id_servicio = %s", (id_servicio,))
+            servicio_data = cursor.fetchone()
+            nombre_servicio = servicio_data['nombre'] if servicio_data else 'Lavado Auto'
+
             datos_cita = {
                 'nombre_cliente': nombre,
                 'email_cliente': email,
                 'telefono': telefono,
                 'patente': patente,
-                'nombre_servicio': 'Lavado Auto',
+                'nombre_servicio': nombre_servicio,
                 'fecha': request.form['fecha'],
                 'hora': request.form['hora']
             }
@@ -118,15 +122,15 @@ def lavado():
         cursor.execute("""
             SELECT DISTINCT tamaño_auto AS nombre_tamaño
             FROM servicios
-            WHERE tipo_servicio = 'lavado' AND tamaño_auto IS NOT NULL
-            ORDER BY FIELD(tamaño_auto, 'pequeño city car', 'mediano Sedan - suv', 'grande camioneta')
+            WHERE tipo_servicio = 'lavado' AND tamaño_auto IS NOT NULL AND tamaño_auto != 'TODOS'
+            ORDER BY FIELD(tamaño_auto, 'Pequeño City Car', 'Mediano Sedan-Sub', 'Grande Camioneta')
         """)
         tamanos_lavado = cursor.fetchall()
 
         cursor.execute("""
             SELECT id_servicio, nombre, precio, tamaño_auto
             FROM servicios
-            WHERE tipo_servicio = 'lavado' AND tamaño_auto = 'pequeño city car'
+            WHERE tipo_servicio = 'lavado' AND (tamaño_auto = 'Pequeño City Car' OR tamaño_auto = 'TODOS')
         """)
         servicios_lavado_actual = cursor.fetchall()
         for servicio in servicios_lavado_actual:
@@ -152,11 +156,21 @@ def get_lavados(tamano):
     try:
         conexion = mysql.connector.connect(**db_config)
         cursor = conexion.cursor(dictionary=True)
-        cursor.execute("""
-            SELECT id_servicio, nombre, precio
-            FROM servicios
-            WHERE tipo_servicio = 'lavado' AND tamaño_auto = %s
-        """, (tamano,))
+        
+        # Si el tamaño es 'TODOS', obtener todos los servicios, si no, filtrar por tamaño específico o TODOS
+        if tamano == 'TODOS':
+            cursor.execute("""
+                SELECT id_servicio, nombre, precio
+                FROM servicios
+                WHERE tipo_servicio = 'lavado' AND tamaño_auto = 'TODOS'
+            """)
+        else:
+            cursor.execute("""
+                SELECT id_servicio, nombre, precio
+                FROM servicios
+                WHERE tipo_servicio = 'lavado' AND (tamaño_auto = %s OR tamaño_auto = 'TODOS')
+            """, (tamano,))
+        
         servicios = cursor.fetchall()
         for servicio in servicios:
             servicio['precio'] = int(servicio['precio'])
