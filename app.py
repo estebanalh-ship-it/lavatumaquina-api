@@ -95,6 +95,9 @@ def lavado():
             )
             conexion.commit()
 
+            cursor.execute("SELECT nombre FROM servicios WHERE id_servicio = %s", (id_servicio,))
+            servicio_data = cursor.fetchone()
+            nombre_servicio = servicio_data['nombre'] if servicio_data else 'Lavado Auto'
             # Obtener nombre del servicio para el correo
             cursor.execute("SELECT nombre FROM servicios WHERE id_servicio = %s", (int(id_servicio),))
             serv_data = cursor.fetchone()
@@ -105,6 +108,7 @@ def lavado():
                 'email_cliente': email,
                 'telefono': telefono,
                 'patente': patente,
+                'nombre_servicio': nombre_servicio,
                 'nombre_servicio': nombre_servicio_final,
                 'fecha': request.form['fecha'],
                 'hora': request.form['hora']
@@ -134,6 +138,20 @@ def lavado():
                        ELSE tamaño_auto 
                    END as nombre_mostrar
             FROM servicios
+            WHERE tipo_servicio = 'lavado' AND tamaño_auto IS NOT NULL AND tamaño_auto != 'Lavado Premium Full'
+            ORDER BY FIELD(tamaño_auto, 'Pequeño City Car', 'Mediano Sedan-Sub', 'Grande Camioneta')
+        """)
+        tamanos_lavado = cursor.fetchall()
+
+        cursor.execute("""
+            SELECT id_servicio, nombre, precio, tamaño_auto
+            FROM servicios
+            WHERE tipo_servicio = 'lavado' AND (tamaño_auto IN ('Pequeño City Car', 'Mediano Sedan-Sub', 'Grande Camioneta') OR nombre = 'Lavado Premium Full')
+            ORDER BY id_servicio ASC
+        """)
+        servicios_lavado_actual = cursor.fetchall()
+        for servicio in servicios_lavado_actual:
+            servicio['precio'] = int(servicio['precio'])
             WHERE tipo_servicio = 'lavado' AND tamaño_auto IS NOT NULL
             ORDER BY FIELD(tamaño_auto, 'pequeño City Car', 'mediano Sedan - suv', 'grande Camioneta')
         """)
@@ -165,6 +183,12 @@ def get_lavados(tamano):
         conexion = mysql.connector.connect(**db_config)
         cursor = conexion.cursor(dictionary=True)
         
+        # Filtrar por tamaño específico O el servicio Premium Full (por nombre), ordenado por ID
+        cursor.execute("""
+            SELECT id_servicio, nombre, precio
+            FROM servicios
+            WHERE tipo_servicio = 'lavado' AND (tamaño_auto = %s OR nombre = 'Lavado Premium Full')
+            ORDER BY id_servicio ASC
         cursor.execute("""
             SELECT id_servicio, nombre, precio
             FROM servicios
