@@ -89,7 +89,6 @@ def lavado():
                 )
                 id_vehiculo = cursor.lastrowid
 
-            # 3. Insertar Agenda
             cursor.execute(
                 "INSERT INTO agendas (id_cliente, id_vehiculo, id_servicio, fecha_agenda) VALUES (%s, %s, %s, %s)",
                 (id_cliente, id_vehiculo, int(id_servicio), fecha_agenda)
@@ -125,20 +124,14 @@ def lavado():
         conexion = mysql.connector.connect(**db_config)
         cursor = conexion.cursor(dictionary=True)
 
-        # Definición manual de los 3 estándares del nuevo negocio
-        # Mapeamos nombres amigables a los tamaños reales en la BD
         categorias_negocio = [
             {'id': 'cat_pequeno', 'nombre': 'Auto Pequeño (City Car)', 'tamano_db': 'pequeño City Car'},
             {'id': 'cat_mediano', 'nombre': 'Auto Mediano (Sedan - Suv)', 'tamano_db': 'mediano Sedan - suv'},
             {'id': 'cat_grande', 'nombre': 'Auto Grande (Camioneta - Jeep)', 'tamano_db': 'grande Camioneta'}
         ]
-
-        # Precargamos los servicios base (ej: tomamos el 'Lavado general' de cada categoría como referencia inicial)
-        # O podemos dejar que el JS pida los precios al seleccionar. 
-        # Para simplificar, enviaremos las categorías y el JS hará el fetch de precios.
         
         tamanos_lavado = categorias_negocio
-        servicios_lavado_actual = [] # Se cargarán dinámicamente al seleccionar categoría
+        servicios_lavado_actual = []
 
     except Exception as e:
         print(f"Error al cargar servicios de lavado: {str(e)}")
