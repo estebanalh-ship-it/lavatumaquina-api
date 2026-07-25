@@ -82,13 +82,13 @@ def lavado():
             if vehiculo:
                 id_vehiculo = vehiculo['id_vehiculo']
             else:
-                # Asumimos 'auto' por defecto como pediste
                 cursor.execute(
                     "INSERT INTO vehiculos (id_cliente, patente, tipo) VALUES (%s, %s, 'auto')",
                     (id_cliente, patente)
                 )
                 id_vehiculo = cursor.lastrowid
 
+            # 3. Insertar Agenda
             cursor.execute(
                 "INSERT INTO agendas (id_cliente, id_vehiculo, id_servicio, fecha_agenda) VALUES (%s, %s, %s, %s)",
                 (id_cliente, id_vehiculo, int(id_servicio), fecha_agenda)
@@ -119,19 +119,27 @@ def lavado():
                 cursor.close()
                 conexion.close()
     
-    # --- LÓGICA GET: PREPARAR LA VISTA CON LOS 3 NUEVOS ESTÁNDARES ---
+    # --- LÓGICA GET CORREGIDA: USAR VALORES REALES DE LA BD ---
     try:
         conexion = mysql.connector.connect(**db_config)
         cursor = conexion.cursor(dictionary=True)
 
-        categorias_negocio = [
-            {'id': 'cat_pequeno', 'nombre': 'Auto Pequeño (City Car)', 'tamano_db': 'pequeño City Car'},
-            {'id': 'cat_mediano', 'nombre': 'Auto Mediano (Sedan - Suv)', 'tamano_db': 'mediano Sedan - suv'},
-            {'id': 'cat_grande', 'nombre': 'Auto Grande (Camioneta - Jeep)', 'tamano_db': 'grande Camioneta'}
-        ]
+        # Obtenemos los tamaños únicos EXACTOS como están en la BD
+        cursor.execute("""
+            SELECT DISTINCT tamaño_auto as valor, 
+                   CASE 
+                       WHEN tamaño_auto LIKE '%pequeño%' THEN 'Auto Pequeño (City Car)'
+                       WHEN tamaño_auto LIKE '%mediano%' THEN 'Auto Mediano (Sedan - Suv)'
+                       WHEN tamaño_auto LIKE '%grande%' THEN 'Auto Grande (Camioneta - Jeep)'
+                       ELSE tamaño_auto 
+                   END as nombre_mostrar
+            FROM servicios
+            WHERE tipo_servicio = 'lavado' AND tamaño_auto IS NOT NULL
+            ORDER BY FIELD(tamaño_auto, 'pequeño City Car', 'mediano Sedan - suv', 'grande Camioneta')
+        """)
+        tamanos_lavado = cursor.fetchall()
         
-        tamanos_lavado = categorias_negocio
-        servicios_lavado_actual = []
+        servicios_lavado_actual = [] 
 
     except Exception as e:
         print(f"Error al cargar servicios de lavado: {str(e)}")
@@ -147,35 +155,22 @@ def lavado():
         tamanos_lavado=tamanos_lavado,
         servicios_lavado_actual=servicios_lavado_actual
     )
-
-@app.route('/get_lavados/<categoria>')
-def get_lavados(categoria):
+@app.route('/get_lavados/<tamano>')
+def get_lavados(tamano):
     """
-    Devuelve los servicios según la categoría seleccionada.
-    Categorías: cat_pequeno, cat_mediano, cat_grande
+    Recibe el valor EXACTO de la columna tamaño_auto de la BD.
+    Ej: 'pequeño City Car'
     """
     try:
-        # Mapeo de categoría a valor en BD
-        mapa_tamanos = {
-            'cat_pequeno': 'pequeño City Car',
-            'cat_mediano': 'mediano Sedan - suv',
-            'cat_grande': 'grande Camioneta'
-        }
-        
-        tamano_db = mapa_tamanos.get(categoria)
-        if not tamano_db:
-            return jsonify([])
-
         conexion = mysql.connector.connect(**db_config)
         cursor = conexion.cursor(dictionary=True)
         
-        # Obtenemos todos los servicios de lavado para ese tamaño
         cursor.execute("""
             SELECT id_servicio, nombre, precio
             FROM servicios
             WHERE tipo_servicio = 'lavado' AND tamaño_auto = %s
             ORDER BY precio ASC
-        """, (tamano_db,))
+        """, (tamano,))
         
         servicios = cursor.fetchall()
         for servicio in servicios:
