@@ -23,7 +23,6 @@ def enviar_correos_confirmacion(datos_cita):
         msg_cliente = Message(asunto_cliente, recipients=[datos_cita['email_cliente']])
         msg_cliente.html = f"""<h3>Hola {datos_cita['nombre_cliente']},</h3><p>Tu cita ha sido confirmada con éxito.</p><p><b>Detalles de la reserva:</b></p><ul><li><b>Servicio:</b> {datos_cita['nombre_servicio']}</li><li><b>Fecha:</b> {datos_cita['fecha']}</li><li><b>Hora:</b> {datos_cita['hora']}</li></ul><p>¡Te esperamos!</p><p>Atentamente,<br>El equipo de <b>Lava Tu Maquina</b></p>"""
         mail.send(msg_cliente)
-
         asunto_empresa = f"Nueva Cita Agendada: {datos_cita['nombre_servicio']} para {datos_cita['nombre_cliente']}"
         msg_empresa = Message(asunto_empresa, recipients=['lavatumaquina.rengo@gmail.com'])
         msg_empresa.html = f"""<h3>Se ha agendado una nueva cita:</h3><ul><li><b>Cliente:</b> {datos_cita['nombre_cliente']}</li><li><b>Email:</b> {datos_cita['email_cliente']}</li><li><b>Teléfono:</b> {datos_cita['telefono']}</li><li><b>Patente:</b> {datos_cita['patente']}</li><li><b>Servicio:</b> {datos_cita['nombre_servicio']}</li><li><b>Fecha:</b> {datos_cita['fecha']}</li><li><b>Hora:</b> {datos_cita['hora']}</li></ul>"""
@@ -32,9 +31,9 @@ def enviar_correos_confirmacion(datos_cita):
     except Exception as e:
         print(f"ERROR AL ENVIAR CORREOS: {e}")
 
-BANDAS_HORARIAS_LAVADOS = ['09:00-10:00', '10:00-11:00', '15:00-16:00', '16:00-17:00']
-BANDAS_HORARIAS_MECANICO = ['11:00-12:00', '12:00-13:00']
-BANDAS_HORARIAS_LAVADOTAPIZ = ['11:00-12:00', '12:00-13:00']
+BANDAS_HORARIAS_LAVADOS = ['09:00', '11:00', '15:00', '16:00']
+BANDAS_HORARIAS_MECANICO = ['11:00', '12:00']
+BANDAS_HORARIAS_LAVADOTAPIZ = ['11:00', '12:00']
 
 @app.route('/')
 def index():
@@ -60,6 +59,7 @@ def lavado():
             conexion = mysql.connector.connect(**db_config)
             cursor = conexion.cursor(dictionary=True)
 
+            # 1. Gestionar Cliente
             cursor.execute("SELECT * FROM clientes WHERE rut = %s", (rut,))
             cliente_existente = cursor.fetchone()
 
@@ -72,6 +72,7 @@ def lavado():
                 )
                 id_cliente = cursor.lastrowid
 
+            # 2. Gestionar Vehículo
             cursor.execute(
                 "SELECT id_vehiculo FROM vehiculos WHERE patente = %s AND id_cliente = %s",
                 (patente, id_cliente)
@@ -87,6 +88,7 @@ def lavado():
                 )
                 id_vehiculo = cursor.lastrowid
 
+            # 3. Insertar Agenda
             cursor.execute(
                 "INSERT INTO agendas (id_cliente, id_vehiculo, id_servicio, fecha_agenda) VALUES (%s, %s, %s, %s)",
                 (id_cliente, id_vehiculo, int(id_servicio), fecha_agenda)
@@ -96,6 +98,10 @@ def lavado():
             cursor.execute("SELECT nombre FROM servicios WHERE id_servicio = %s", (id_servicio,))
             servicio_data = cursor.fetchone()
             nombre_servicio = servicio_data['nombre'] if servicio_data else 'Lavado Auto'
+            # Obtener nombre del servicio para el correo
+            cursor.execute("SELECT nombre FROM servicios WHERE id_servicio = %s", (int(id_servicio),))
+            serv_data = cursor.fetchone()
+            nombre_servicio_final = serv_data['nombre'] if serv_data else 'Lavado Auto'
 
             datos_cita = {
                 'nombre_cliente': nombre,
@@ -103,6 +109,7 @@ def lavado():
                 'telefono': telefono,
                 'patente': patente,
                 'nombre_servicio': nombre_servicio,
+                'nombre_servicio': nombre_servicio_final,
                 'fecha': request.form['fecha'],
                 'hora': request.form['hora']
             }
@@ -115,12 +122,21 @@ def lavado():
             if 'conexion' in locals() and conexion.is_connected():
                 cursor.close()
                 conexion.close()
+    
+    # --- LÓGICA GET CORREGIDA: USAR VALORES REALES DE LA BD ---
     try:
         conexion = mysql.connector.connect(**db_config)
         cursor = conexion.cursor(dictionary=True)
 
+        # Obtenemos los tamaños únicos EXACTOS como están en la BD
         cursor.execute("""
-            SELECT DISTINCT tamaño_auto AS nombre_tamaño
+            SELECT DISTINCT tamaño_auto as valor, 
+                   CASE 
+                       WHEN tamaño_auto LIKE '%pequeño%' THEN 'Auto Pequeño (City Car)'
+                       WHEN tamaño_auto LIKE '%mediano%' THEN 'Auto Mediano (Sedan - Suv)'
+                       WHEN tamaño_auto LIKE '%grande%' THEN 'Auto Grande (Camioneta - Jeep)'
+                       ELSE tamaño_auto 
+                   END as nombre_mostrar
             FROM servicios
             WHERE tipo_servicio = 'lavado' AND tamaño_auto IS NOT NULL AND tamaño_auto != 'Lavado Premium Full'
             ORDER BY FIELD(tamaño_auto, 'Pequeño City Car', 'Mediano Sedan-Sub', 'Grande Camioneta')
@@ -136,6 +152,12 @@ def lavado():
         servicios_lavado_actual = cursor.fetchall()
         for servicio in servicios_lavado_actual:
             servicio['precio'] = int(servicio['precio'])
+            WHERE tipo_servicio = 'lavado' AND tamaño_auto IS NOT NULL
+            ORDER BY FIELD(tamaño_auto, 'pequeño City Car', 'mediano Sedan - suv', 'grande Camioneta')
+        """)
+        tamanos_lavado = cursor.fetchall()
+        
+        servicios_lavado_actual = [] 
 
     except Exception as e:
         print(f"Error al cargar servicios de lavado: {str(e)}")
@@ -151,9 +173,12 @@ def lavado():
         tamanos_lavado=tamanos_lavado,
         servicios_lavado_actual=servicios_lavado_actual
     )
-
 @app.route('/get_lavados/<tamano>')
 def get_lavados(tamano):
+    """
+    Recibe el valor EXACTO de la columna tamaño_auto de la BD.
+    Ej: 'pequeño City Car'
+    """
     try:
         conexion = mysql.connector.connect(**db_config)
         cursor = conexion.cursor(dictionary=True)
@@ -164,12 +189,21 @@ def get_lavados(tamano):
             FROM servicios
             WHERE tipo_servicio = 'lavado' AND (tamaño_auto = %s OR nombre = 'Lavado Premium Full')
             ORDER BY id_servicio ASC
+        cursor.execute("""
+            SELECT id_servicio, nombre, precio
+            FROM servicios
+            WHERE tipo_servicio = 'lavado' AND tamaño_auto = %s
+            ORDER BY precio ASC
         """, (tamano,))
         
         servicios = cursor.fetchall()
         for servicio in servicios:
             servicio['precio'] = int(servicio['precio'])
+            
         return jsonify(servicios)
+    except Exception as e:
+        print(f"Error al obtener lavados: {e}")
+        return jsonify([])
     finally:
         if 'cursor' in locals():
             cursor.close()
@@ -395,13 +429,15 @@ def horas_disponibles():
     try:
         conexion = mysql.connector.connect(**db_config)
         cursor = conexion.cursor()
-        sql = "SELECT DATE_FORMAT(fecha_agenda, '%H:%i:00') AS hora_inicio FROM agendas WHERE DATE(fecha_agenda) = %s"
+        # Obtenemos solo la hora (HH:MM) de las agendas ocupadas
+        sql = "SELECT DATE_FORMAT(fecha_agenda, '%H:%i') AS hora_inicio FROM agendas WHERE DATE(fecha_agenda) = %s"
         cursor.execute(sql, (fecha,))
         horas_ocupadas = [row[0] for row in cursor.fetchall()]
 
-        disponibles_lavados = [b for b in BANDAS_HORARIAS_LAVADOS if f"{b.split('-')[0]}:00" not in horas_ocupadas]
-        disponibles_mecanicos = [b for b in BANDAS_HORARIAS_MECANICO if f"{b.split('-')[0]}:00" not in horas_ocupadas]
-        disponibles_lavadotapiz = [b for b in BANDAS_HORARIAS_LAVADOTAPIZ if f"{b.split('-')[0]}:00" not in horas_ocupadas]
+        # Comparación directa ya que las bandas son solo 'HH:MM'
+        disponibles_lavados = [b for b in BANDAS_HORARIAS_LAVADOS if b not in horas_ocupadas]
+        disponibles_mecanicos = [b for b in BANDAS_HORARIAS_MECANICO if b not in horas_ocupadas]
+        disponibles_lavadotapiz = [b for b in BANDAS_HORARIAS_LAVADOTAPIZ if b not in horas_ocupadas]
 
         return jsonify({
             'disponibles_lavados': disponibles_lavados,
