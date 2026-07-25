@@ -31,13 +31,9 @@ def enviar_correos_confirmacion(datos_cita):
     except Exception as e:
         print(f"ERROR AL ENVIAR CORREOS: {e}")
 
-BANDAS_HORARIAS_LAVADOS = ['09:00', '11:00', '15:00', '16:00]
-BANDAS_HORARIAS_MECANICO = ['11:00' '12:00']
+BANDAS_HORARIAS_LAVADOS = ['09:00', '11:00', '15:00', '16:00']
+BANDAS_HORARIAS_MECANICO = ['11:00', '12:00']
 BANDAS_HORARIAS_LAVADOTAPIZ = ['11:00', '12:00']
-
-@app.route('/')
-def index():
-    return render_template('index.html')
 
 @app.route('/')
 def index():
@@ -421,13 +417,15 @@ def horas_disponibles():
     try:
         conexion = mysql.connector.connect(**db_config)
         cursor = conexion.cursor()
-        sql = "SELECT DATE_FORMAT(fecha_agenda, '%H:%i:00') AS hora_inicio FROM agendas WHERE DATE(fecha_agenda) = %s"
+        # Obtenemos solo la hora (HH:MM) de las agendas ocupadas
+        sql = "SELECT DATE_FORMAT(fecha_agenda, '%H:%i') AS hora_inicio FROM agendas WHERE DATE(fecha_agenda) = %s"
         cursor.execute(sql, (fecha,))
         horas_ocupadas = [row[0] for row in cursor.fetchall()]
 
-        disponibles_lavados = [b for b in BANDAS_HORARIAS_LAVADOS if f"{b.split('-')[0]}:00" not in horas_ocupadas]
-        disponibles_mecanicos = [b for b in BANDAS_HORARIAS_MECANICO if f"{b.split('-')[0]}:00" not in horas_ocupadas]
-        disponibles_lavadotapiz = [b for b in BANDAS_HORARIAS_LAVADOTAPIZ if f"{b.split('-')[0]}:00" not in horas_ocupadas]
+        # Comparación directa ya que las bandas son solo 'HH:MM'
+        disponibles_lavados = [b for b in BANDAS_HORARIAS_LAVADOS if b not in horas_ocupadas]
+        disponibles_mecanicos = [b for b in BANDAS_HORARIAS_MECANICO if b not in horas_ocupadas]
+        disponibles_lavadotapiz = [b for b in BANDAS_HORARIAS_LAVADOTAPIZ if b not in horas_ocupadas]
 
         return jsonify({
             'disponibles_lavados': disponibles_lavados,
