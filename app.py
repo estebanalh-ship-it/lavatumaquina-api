@@ -32,8 +32,12 @@ def enviar_correos_confirmacion(datos_cita):
         print(f"ERROR AL ENVIAR CORREOS: {e}")
 
 BANDAS_HORARIAS_LAVADOS = ['09:00', '11:00', '15:00', '16:00]
-BANDAS_HORARIAS_MECANICO = ['11:00-12:00', '12:00-13:00']
-BANDAS_HORARIAS_LAVADOTAPIZ = ['11:00-12:00', '12:00-13:00']
+BANDAS_HORARIAS_MECANICO = ['11:00' '12:00']
+BANDAS_HORARIAS_LAVADOTAPIZ = ['11:00', '12:00']
+
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 @app.route('/')
 def index():
@@ -59,6 +63,7 @@ def lavado():
             conexion = mysql.connector.connect(**db_config)
             cursor = conexion.cursor(dictionary=True)
 
+            # 1. Gestionar Cliente
             cursor.execute("SELECT * FROM clientes WHERE rut = %s", (rut,))
             cliente_existente = cursor.fetchone()
 
@@ -71,6 +76,7 @@ def lavado():
                 )
                 id_cliente = cursor.lastrowid
 
+            # 2. Gestionar Vehículo
             cursor.execute(
                 "SELECT id_vehiculo FROM vehiculos WHERE patente = %s AND id_cliente = %s",
                 (patente, id_cliente)
@@ -80,24 +86,31 @@ def lavado():
             if vehiculo:
                 id_vehiculo = vehiculo['id_vehiculo']
             else:
+                # Asumimos 'auto' por defecto como pediste
                 cursor.execute(
                     "INSERT INTO vehiculos (id_cliente, patente, tipo) VALUES (%s, %s, 'auto')",
                     (id_cliente, patente)
                 )
                 id_vehiculo = cursor.lastrowid
 
+            # 3. Insertar Agenda
             cursor.execute(
                 "INSERT INTO agendas (id_cliente, id_vehiculo, id_servicio, fecha_agenda) VALUES (%s, %s, %s, %s)",
                 (id_cliente, id_vehiculo, int(id_servicio), fecha_agenda)
             )
             conexion.commit()
 
+            # Obtener nombre del servicio para el correo
+            cursor.execute("SELECT nombre FROM servicios WHERE id_servicio = %s", (int(id_servicio),))
+            serv_data = cursor.fetchone()
+            nombre_servicio_final = serv_data['nombre'] if serv_data else 'Lavado Auto'
+
             datos_cita = {
                 'nombre_cliente': nombre,
                 'email_cliente': email,
                 'telefono': telefono,
                 'patente': patente,
-                'nombre_servicio': 'Lavado Auto',
+                'nombre_servicio': nombre_servicio_final,
                 'fecha': request.form['fecha'],
                 'hora': request.form['hora']
             }
@@ -110,26 +123,26 @@ def lavado():
             if 'conexion' in locals() and conexion.is_connected():
                 cursor.close()
                 conexion.close()
+    
+    # --- LÓGICA GET: PREPARAR LA VISTA CON LOS 3 NUEVOS ESTÁNDARES ---
     try:
         conexion = mysql.connector.connect(**db_config)
         cursor = conexion.cursor(dictionary=True)
 
-        cursor.execute("""
-            SELECT DISTINCT tamaño_auto AS nombre_tamaño
-            FROM servicios
-            WHERE tipo_servicio = 'lavado' AND tamaño_auto IS NOT NULL
-            ORDER BY FIELD(tamaño_auto, 'pequeño city car', 'mediano Sedan - suv', 'grande camioneta')
-        """)
-        tamanos_lavado = cursor.fetchall()
+        # Definición manual de los 3 estándares del nuevo negocio
+        # Mapeamos nombres amigables a los tamaños reales en la BD
+        categorias_negocio = [
+            {'id': 'cat_pequeno', 'nombre': 'Auto Pequeño (City Car)', 'tamano_db': 'pequeño City Car'},
+            {'id': 'cat_mediano', 'nombre': 'Auto Mediano (Sedan - Suv)', 'tamano_db': 'mediano Sedan - suv'},
+            {'id': 'cat_grande', 'nombre': 'Auto Grande (Camioneta - Jeep)', 'tamano_db': 'grande Camioneta'}
+        ]
 
-        cursor.execute("""
-            SELECT id_servicio, nombre, precio, tamaño_auto
-            FROM servicios
-            WHERE tipo_servicio = 'lavado' AND tamaño_auto = 'pequeño city car'
-        """)
-        servicios_lavado_actual = cursor.fetchall()
-        for servicio in servicios_lavado_actual:
-            servicio['precio'] = int(servicio['precio'])
+        # Precargamos los servicios base (ej: tomamos el 'Lavado general' de cada categoría como referencia inicial)
+        # O podemos dejar que el JS pida los precios al seleccionar. 
+        # Para simplificar, enviaremos las categorías y el JS hará el fetch de precios.
+        
+        tamanos_lavado = categorias_negocio
+        servicios_lavado_actual = [] # Se cargarán dinámicamente al seleccionar categoría
 
     except Exception as e:
         print(f"Error al cargar servicios de lavado: {str(e)}")
@@ -146,20 +159,43 @@ def lavado():
         servicios_lavado_actual=servicios_lavado_actual
     )
 
-@app.route('/get_lavados/<tamano>')
-def get_lavados(tamano):
+@app.route('/get_lavados/<categoria>')
+def get_lavados(categoria):
+    """
+    Devuelve los servicios según la categoría seleccionada.
+    Categorías: cat_pequeno, cat_mediano, cat_grande
+    """
     try:
+        # Mapeo de categoría a valor en BD
+        mapa_tamanos = {
+            'cat_pequeno': 'pequeño City Car',
+            'cat_mediano': 'mediano Sedan - suv',
+            'cat_grande': 'grande Camioneta'
+        }
+        
+        tamano_db = mapa_tamanos.get(categoria)
+        if not tamano_db:
+            return jsonify([])
+
         conexion = mysql.connector.connect(**db_config)
         cursor = conexion.cursor(dictionary=True)
+        
+        # Obtenemos todos los servicios de lavado para ese tamaño
         cursor.execute("""
             SELECT id_servicio, nombre, precio
             FROM servicios
             WHERE tipo_servicio = 'lavado' AND tamaño_auto = %s
-        """, (tamano,))
+            ORDER BY precio ASC
+        """, (tamano_db,))
+        
         servicios = cursor.fetchall()
         for servicio in servicios:
             servicio['precio'] = int(servicio['precio'])
+            
         return jsonify(servicios)
+    except Exception as e:
+        print(f"Error al obtener lavados: {e}")
+        return jsonify([])
     finally:
         if 'cursor' in locals():
             cursor.close()
