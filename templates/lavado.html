@@ -179,7 +179,7 @@
                 <select name="tamano_auto" id="tamano_select" onchange="cargarLavados()" required>
                     <option value="">Seleccione tamaño...</option>
                     {% for tamaño in tamanos_lavado %}
-                    <option value="{{ tamaño.nombre_tamaño }}">{{ tamaño.nombre_tamaño|title }}</option>
+                    <option value="{{ tamaño.valor }}">{{ tamaño.nombre_tamaño|title }}</option>
                     {% endfor %}
                 </select>
             </div>
