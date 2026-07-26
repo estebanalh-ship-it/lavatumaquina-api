@@ -120,27 +120,24 @@ def lavado():
                 conexion.close()
     
     # --- LÓGICA GET CORREGIDA: USAR VALORES REALES DE LA BD ---
-    try:
-        conexion = mysql.connector.connect(**db_config)
-        cursor = conexion.cursor(dictionary=True)
-
-        # Obtenemos los tamaños únicos EXACTOS como están en la BD
-        cursor.execute("""
-            SELECT DISTINCT tamaño_auto as valor, 
-                   CASE 
-                       WHEN tamaño_auto = 'Pequeño City Car' THEN 'Auto Pequeño (City Car)'
-                       WHEN tamaño_auto = 'Mediano Sedan-Sub' THEN 'Auto Mediano (Sedan - Suv)'
-                       WHEN tamaño_auto = 'Grande Camioneta' THEN 'Auto Grande (Camioneta - Jeep)'
-                       WHEN tamaño_auto = 'Lavado Premium Full' THEN 'Lavado Premium Full'
-                       ELSE tamaño_auto 
-                   END as nombre_mostrar
-            FROM servicios
-            WHERE tipo_servicio = 'lavado' AND tamaño_auto IS NOT NULL
-            ORDER BY FIELD(tamaño_auto, 'Pequeño City Car', 'Mediano Sedan-Sub', 'Grande Camioneta', 'Lavado Premium Full')
-        """)
-        tamanos_lavado = cursor.fetchall()
+        try:
+            conexion = mysql.connector.connect(**db_config)
+            cursor = conexion.cursor(dictionary=True)
         
-        servicios_lavado_actual = [] 
+            cursor.execute("""
+                SELECT DISTINCT `tamaño_auto` as valor, 
+                       CASE 
+                           WHEN `tamaño_auto` = 'Pequeño City Car' THEN 'Auto Pequeño (City Car)'
+                           WHEN `tamaño_auto` = 'Mediano Sedan-Sub' THEN 'Auto Mediano (Sedan - Suv)'
+                           WHEN `tamaño_auto` = 'Grande Camioneta' THEN 'Auto Grande (Camioneta - Jeep)'
+                           WHEN `tamaño_auto` = 'Lavado Premium Full' THEN 'Lavado Premium Full'
+                           ELSE `tamaño_auto` 
+                       END as nombre_mostrar
+                FROM servicios
+                WHERE tipo_servicio = 'lavado' AND `tamaño_auto` IS NOT NULL
+                ORDER BY FIELD(`tamaño_auto`, 'Pequeño City Car', 'Mediano Sedan-Sub', 'Grande Camioneta', 'Lavado Premium Full')
+            """)
+            tamanos_lavado = cursor.fetchall()
 
     except Exception as e:
         print(f"Error al cargar servicios de lavado: {str(e)}")
