@@ -146,18 +146,25 @@
             background-color: #140a1e;
             border: 1px solid #3b1d5c;
             border-radius: 8px;
-            color: #ffffff;
+            color: #c084fc;
             font-size: 14px;
             outline: none;
             text-transform: uppercase;
             transition: all 0.3s ease;
         }
 
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover, 
+        input:-webkit-autofill:focus, 
+        input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 30px #140a1e inset !important;
+            -webkit-text-fill-color: #c084fc !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }
         .form-input:focus, .form-select:focus {
             border-color: #00ff40;
             box-shadow: 0 0 10px rgba(0, 255, 64, 0.5);
         }
-
         /* ADAPTACIÓN PARA EL +569 (INPUT GROUP) */
         .input-group {
             display: flex;
