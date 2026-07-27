@@ -331,15 +331,9 @@
             </div>
 
             <div class="form-group">
-                <label for="servicio_select">Tipo de Lavado</label>
-                <select name="id_servicio" id="servicio_select" class="form-select" required>
-                    <option value="">Primero seleccione tamaño...</option>
-                    {% for servicio in servicios_lavado_actual %}
-                    <option value="{{ servicio.id_servicio }}">
-                        {{ servicio.nombre }} - ${{ servicio.precio|int }}
-                    </option>
-                    {% endfor %}
-                </select>
+                <label for="servicio_display">Tipo de Lavado</label>
+                <input type="text" id="servicio_display" class="form-input" placeholder="Primero seleccione tamaño..." readonly required>
+                <input type="hidden" name="id_servicio" id="servicio_hidden" required>
             </div>
 
             <div class="form-group">
@@ -361,35 +355,38 @@
     <a href="/" class="btn-volver">⟲ VOLVER AL INICIO</a>
 
     <script>
-        // Cargar lavados por tamaño
+        // Cargar lavado único por tamaño
         function cargarLavados() {
             const tamano = document.getElementById('tamano_select').value;
-            const servicioSelect = document.getElementById('servicio_select');
-
+            const servicioDisplay = document.getElementById('servicio_display');
+            const servicioHidden = document.getElementById('servicio_hidden');
+        
             if (!tamano) {
-                servicioSelect.innerHTML = '<option value="">Primero seleccione tamaño...</option>';
+                servicioDisplay.value = '';
+                servicioDisplay.placeholder = 'Primero seleccione tamaño...';
+                servicioHidden.value = '';
                 return;
             }
-
+        
             fetch(`/get_lavados/${tamano}`)
                 .then(response => response.json())
                 .then(data => {
-                    servicioSelect.innerHTML = '';
                     if (data.length > 0) {
-                        data.forEach(servicio => {
-                            const option = new Option(
-                                `${servicio.nombre} - $${servicio.precio}`,
-                                servicio.id_servicio
-                            );
-                            servicioSelect.appendChild(option);
-                        });
+                        // Como es valor único, tomamos el primer resultado [0]
+                        const servicio = data[0];
+                        servicioDisplay.value = `${servicio.nombre} - $${servicio.precio}`;
+                        servicioHidden.value = servicio.id_servicio;
                     } else {
-                        servicioSelect.innerHTML = '<option value="">No hay servicios</option>';
+                        servicioDisplay.value = '';
+                        servicioDisplay.placeholder = 'No hay servicios asignados';
+                        servicioHidden.value = '';
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    servicioSelect.innerHTML = '<option value="">Error al cargar</option>';
+                    servicioDisplay.value = '';
+                    servicioDisplay.placeholder = 'Error al cargar';
+                    servicioHidden.value = '';
                 });
         }
 
