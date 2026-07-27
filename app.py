@@ -119,47 +119,46 @@ def lavado():
                 cursor.close()
                 conexion.close()
     
-    # --- LÓGICA GET CORREGIDA: USAR VALORES REALES DE LA BD ---
-        try:
-            conexion = mysql.connector.connect(**db_config)
-            cursor = conexion.cursor(dictionary=True)
-        
-            cursor.execute(
-                "SELECT DISTINCT `tamaño_auto` as valor FROM servicios "
-                "WHERE tipo_servicio = 'lavado' AND `tamaño_auto` IS NOT NULL"
-            )
-            rows = cursor.fetchall()
-        
-            nombres_bonitos = {
-                'Pequeño City Car':    'Auto Pequeño (City Car)',
-                'Mediano Sedan-Sub':   'Auto Mediano (Sedan - Suv)',
-                'Grande Camioneta':    'Auto Grande (Camioneta - Jeep)',
-                'Lavado Premium Full': 'Lavado Premium Full'
-            }
-            orden = ['Pequeño City Car', 'Mediano Sedan-Sub', 'Grande Camioneta', 'Lavado Premium Full']
-        
-            tamanos_lavado = sorted(
-                [{'valor': r['valor'], 'nombre_mostrar': nombres_bonitos.get(r['valor'], r['valor'])} for r in rows],
-                key=lambda x: orden.index(x['valor']) if x['valor'] in orden else 99
-            )
-            servicios_lavado_actual = []
-        
-        except Exception as e:
-            print(f"Error al cargar servicios de lavado: {str(e)}")
-            tamanos_lavado = []
-            servicios_lavado_actual = []
-        
-        finally:
-            if 'conexion' in locals() and conexion.is_connected():
-                cursor.close()
-                conexion.close()
-        
-        return render_template(
-            'lavado.html',
-            tamanos_lavado=tamanos_lavado,
-            servicios_lavado_actual=servicios_lavado_actual
-        )
-        
+    # --- LÓGICA GET CORREGIDA: USAR VALORES REALES DE LA BD ---    
+            try:
+                conexion = mysql.connector.connect(**db_config)
+                cursor = conexion.cursor(dictionary=True)
+            
+                cursor.execute(
+                    "SELECT DISTINCT `tamaño_auto` as valor FROM servicios "
+                    "WHERE tipo_servicio = 'lavado' AND `tamaño_auto` IS NOT NULL"
+                )
+                rows = cursor.fetchall()
+            
+                nombres_bonitos = {
+                    'Pequeño City Car':    'Auto Pequeño (City Car)',
+                    'Mediano Sedan-Sub':   'Auto Mediano (Sedan - Suv)',
+                    'Grande Camioneta':    'Auto Grande (Camioneta - Jeep)',
+                    'Lavado Premium Full': 'Lavado Premium Full'
+                }
+                orden = ['Pequeño City Car', 'Mediano Sedan-Sub', 'Grande Camioneta', 'Lavado Premium Full']
+            
+                tamanos_lavado = sorted(
+                    [{'valor': r['valor'], 'nombre_mostrar': nombres_bonitos.get(r['valor'], r['valor'])} for r in rows],
+                    key=lambda x: orden.index(x['valor']) if x['valor'] in orden else 99
+                )
+                servicios_lavado_actual = []
+            
+            except Exception as e:
+                print(f"Error al cargar servicios de lavado: {str(e)}")
+                tamanos_lavado = []
+                servicios_lavado_actual = []
+            
+            finally:
+                if 'conexion' in locals() and conexion.is_connected():
+                    cursor.close()
+                    conexion.close()
+            
+            return render_template(
+                'lavado.html',
+                tamanos_lavado=tamanos_lavado,
+                servicios_lavado_actual=servicios_lavado_actual
+            )        
 @app.route('/get_lavados/<tamano>')
 def get_lavados(tamano):
     """
@@ -173,7 +172,7 @@ def get_lavados(tamano):
         cursor.execute("""
             SELECT id_servicio, nombre, precio
             FROM servicios
-            WHERE tipo_servicio = 'lavado' AND 'tamaño_auto´ = %s
+            WHERE tipo_servicio = 'lavado' AND 'tamaño_auto' = %s
             ORDER BY precio ASC
         """, (tamano,))
         
