@@ -232,6 +232,13 @@
             background: rgba(192, 132, 252, 0.1);
             box-shadow: 0 0 10px rgba(192, 132, 252, 0.5);
         }
+
+        .rut-error {
+            color: #ff6b6b;
+            font-size: 12px;
+            display: none;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
@@ -276,10 +283,10 @@
             <div class="form-group">
                 <label for="rut">RUT del Cliente</label>
                 <input type="text" id="rut" name="rut" class="form-input"
-                    placeholder="RUT (ej: 19876543-2)" maxlength="11" 
-                    pattern="\d{7,8}-[\dkK]" title="Formato: 12345678-9 (sin puntos, con guión)"
-                    oninput="this.value = this.value.replace(/[^\d-kK]/g, '').toUpperCase().slice(0, 11)"
+                    placeholder="RUT (ej: 19876543-2)" maxlength="12" 
+                    title="Formato: 12345678-9 (sin puntos, con guión)"
                     required>
+                <span id="rut-error" class="rut-error"></span>
             </div>
 
             <div class="form-group">
@@ -372,7 +379,6 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.length > 0) {
-                        // Como es valor único, tomamos el primer resultado [0]
                         const servicio = data[0];
                         servicioDisplay.value = `${servicio.nombre} - $${servicio.precio}`;
                         servicioHidden.value = servicio.id_servicio;
@@ -390,9 +396,55 @@
                 });
         }
 
+        // ===== LÓGICA RUT =====
+        function calcularDigitoVerificador(numero) {
+            let suma = 0;
+            let multiplicador = 2;
+            
+            for (let i = numero.length - 1; i >= 0; i--) {
+                suma += parseInt(numero.charAt(i)) * multiplicador;
+                multiplicador++;
+                if (multiplicador > 7) multiplicador = 2;
+            }
+            
+            const resto = suma % 11;
+            const digito = 11 - resto;
+            
+            if (digito === 11) return '0';
+            if (digito === 10) return 'K';
+            return digito.toString();
+        }
+
+        function validarRUT(rut) {
+            rut = rut.replace(/[.-]/g, '').toUpperCase();
+            
+            if (rut.length !== 9 || !/^\d{8}[0-9K]$/.test(rut)) {
+                return false;
+            }
+            
+            const numero = rut.slice(0, 8);
+            const verificador = rut.charAt(8);
+            const digitoCalculado = calcularDigitoVerificador(numero);
+            
+            return verificador === digitoCalculado;
+        }
+
+        function formatearRUT(valor) {
+            let limpiar = valor.replace(/[^0-9kK]/g, '').toUpperCase();
+            
+            if (limpiar.length > 0) {
+                let numero = limpiar.slice(0, 8);
+                let verificador = limpiar.slice(8, 9);
+                
+                if (numero.length > 0) {
+                    return numero + '-' + verificador;
+                }
+            }
+            return limpiar;
+        }
+
         // Auto-relleno y funciones principales
         document.addEventListener('DOMContentLoaded', function() {
-            // Auto-relleno RUT
             const rutInput = document.getElementById('rut');
             const nombreInput = document.getElementById('nombre');
             const emailInput = document.getElementById('email');
@@ -400,9 +452,23 @@
             const patenteInput = document.getElementById('patente');
 
             if (rutInput) {
+                rutInput.addEventListener('input', function(e) {
+                    e.target.value = formatearRUT(e.target.value);
+                    document.getElementById('rut-error').style.display = 'none';
+                });
+
                 rutInput.addEventListener('blur', function() {
-                    const rut = this.value;
-                    if (rut) {
+                    const rut = this.value.trim();
+                    const errorSpan = document.getElementById('rut-error');
+                    
+                    if (rut && !validarRUT(rut)) {
+                        errorSpan.textContent = '❌ RUT inválido: verifica el dígito verificador';
+                        errorSpan.style.display = 'block';
+                        this.style.borderColor = '#ff6b6b';
+                    } else if (rut) {
+                        errorSpan.style.display = 'none';
+                        this.style.borderColor = '#00ff40';
+                        
                         fetch(`/buscar_cliente?rut=${rut}`)
                             .then(response => response.json())
                             .then(data => {
