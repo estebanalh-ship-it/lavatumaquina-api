@@ -1,1 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CONSULTAS - LAVA TU MÁQUINA</title>
+    <style>
+        /* ----- REGLAS GENERALES ----- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #060506;
+            color: #ffffff;
+            text-align: center;
+            padding: 20px 10px;
+        }
+
+        /* ----- HEADER Y LOGO HIPERVINCULADO ----- */
+        .logo-container {
+            padding: 20px 0;
+            text-align: center;
+        }
+
+        .logo-link {
+            display: inline-block;
+            text-decoration: none;
+            border-radius: 15px;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .logo {
+            width: 140px; 
+            height: auto;
+            display: block;
+            border-radius: 12px;
+            background-color: #0c0c0c;
+            border: 2px solid #2a1b3d;
+            padding: 5px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
+            transition: all 0.3s ease-in-out;
+        }
+
+        .logo-link:hover .logo,
+        .logo-link:focus .logo {
+            border-color: #a855f7;
+            box-shadow: 0 0 20px #a855f7, 0 0 35px rgba(168, 85, 247, 0.5);
+            transform: scale(1.03);
+        }
+
+        /* ----- CONTENEDORES GLASSMORPHISM ----- */
+        .card-container {
+            max-width: 500px;
+            margin: 25px auto;
+            background: rgba(18, 8, 25, 0.85);
+            border: 2px solid #a855f7;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.25);
+            text-align: left;
+        }
+
+        .card-title {
+            color: #00ff40;
+            font-size: 22px;
+            text-transform: uppercase;
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #331d4a;
+            padding-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        /* ----- FORMULARIO ----- */
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 13px;
+            color: #c084fc;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 12px;
+            background-color: #140a1e;
+            border: 1px solid #3b1d5c;
+            border-radius: 8px;
+            color: #c084fc;
+            font-size: 14px;
+            outline: none;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 120px;
+            text-transform: none; /* Permite redacción natural en el mensaje */
+        }
+
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover, 
+        input:-webkit-autofill:focus, 
+        input:-webkit-autofill:active,
+        textarea:-webkit-autofill {
+            -webkit-box-shadow: 0 0 0 30px #140a1e inset !important;
+            -webkit-text-fill-color: #c084fc !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            border-color: #00ff40;
+            box-shadow: 0 0 10px rgba(0, 255, 64, 0.5);
+        }
+
+        /* ----- BOTONES ----- */
+        .btn-neon {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin-top: 25px;
+            background: #00ff40;
+            color: #000000;
+            font-weight: bold;
+            font-size: 16px;
+            text-transform: uppercase;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(0, 255, 64, 0.4);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .btn-neon:hover {
+            background: #00cc33;
+            box-shadow: 0 0 25px rgba(0, 255, 64, 0.8);
+            transform: translateY(-2px);
+        }
+
+        .btn-volver {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            color: #c084fc;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+            border: 1px solid #c084fc;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-volver:hover {
+            background: rgba(192, 132, 252, 0.1);
+            box-shadow: 0 0 10px rgba(192, 132, 252, 0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <header class="logo-container">
+        <a href="/" class="logo-link" title="Volver al Inicio">
+            <img src="/static/logo.png" alt="Lava Tu Máquina" class="logo">
+        </a>
+    </header>
+
+    <section class="card-container">
+        <h2 class="card-title">Envíanos Tu Consulta 💬</h2>
+        
+        <form method="POST">
+            <div class="form-group">
+                <label for="nombre">Nombre Completo</label>
+                <input type="text" id="nombre" name="nombre" class="form-input"
+                    placeholder="NOMBRE" maxlength="50" 
+                    pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+" 
+                    title="Solo letras y espacios"
+                    oninput="this.value = this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, '').slice(0, 50)"
+                    required>
+            </div>
+
+            <div class="form-group">
+                <label for="correo">Correo Electrónico</label>
+                <input type="email" name="correo" id="correo" class="form-input" placeholder="EMAIL" required>
+            </div>
+
+            <div class="form-group">
+                <label for="opcion_consulta">Tema de la Consulta</label>
+                <select name="opcion_consulta" id="opcion_consulta" class="form-select" required>
+                    <option value="">Seleccione opción...</option>
+                    <option value="Dudas sobre el servicio">Dudas sobre el servicio</option>
+                    <option value="Horarios y disponibilidad">Horarios y disponibilidad</option>
+                    <option value="Problemas con mi reserva">Problemas con mi reserva</option>
+                    <option value="Servicio empresas / flotas">Servicio empresas / flotas</option>
+                    <option value="Otro">Otro</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="mensaje">Mensaje o Detalle</label>
+                <textarea name="mensaje" id="mensaje" class="form-textarea" placeholder="Escribe tu consulta aquí..." required></textarea>
+            </div>
+
+            <button type="submit" class="btn-neon">ENVIAR CONSULTA</button>
+        </form>
+    </section>
+
+    <a href="/" class="btn-volver">⟲ VOLVER AL INICIO</a>
+
+</body>
+</html>
