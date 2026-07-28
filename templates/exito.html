@@ -1,66 +1,133 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Reserva Confirmada</title>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reserva Confirmada - Lava Tu Máquina</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #060506;
-            color: white;
-            padding-top: 50px;
+        /* ----- REGLAS GENERALES ----- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #060506;
+            color: #ffffff;
+            text-align: center;
+            padding: 40px 10px;
+        }
+
+        /* ----- CONTENEDOR GLASSMORPHISM ----- */
         .contenedor-exito {
-            background-color: rgb(197, 190, 190);
-            color: #2c3e50;
-            padding: 30px;
-            border-radius: 10px;
             max-width: 500px;
             margin: 0 auto;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-            text-transform: uppercase;
+            background: rgba(18, 8, 25, 0.85);
+            border: 2px solid #a855f7;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.25);
         }
-        .boton {
-            display: inline-block;
-            padding: 15px 30px;
-            margin-top: 30px;
-            background-color: #006989;
-            color: white;
-            text-decoration: none;
-            border-radius: 8px;
-            font-size: 18px;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-        .boton:hover {
-            background-color: #005670;
-        }
+
         h1 {
-            color: #2ecc71;
+            color: #00ff40;
+            font-size: 26px;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px rgba(0, 255, 64, 0.4);
         }
+
         p {
-            font-size: 1.1em;
+            font-size: 15px;
+            color: #d1d5db;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        /* ----- DETALLES DE RESERVA ----- */
+        .detalles-reserva {
+            background-color: #140a1e;
+            border: 1px solid #3b1d5c;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+            text-align: left;
+        }
+
+        .detalles-reserva p {
             margin: 10px 0;
+            color: #c084fc;
+            font-size: 15px;
+        }
+
+        .detalles-reserva strong {
+            color: #ffffff;
+            text-transform: uppercase;
+            font-size: 13px;
+            margin-right: 5px;
+        }
+
+        /* ----- MAPA CYBERPUNK ----- */
+        .mapa-container {
+            margin-bottom: 25px;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #3b1d5c;
+            /* ESTE FILTRO HACE LA MAGIA CYBERPUNK (Modo oscuro neón) */
+            filter: invert(90%) hue-rotate(180deg) contrast(1.1);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .mapa-container iframe {
+            width: 100%;
+            height: 250px;
+            border: none;
+            display: block;
+        }
+
+        /* ----- BOTÓN ----- */
+        .btn-neon {
+            display: inline-block;
+            width: 100%;
+            padding: 15px;
+            background: #00ff40;
+            color: #000000;
+            font-weight: bold;
+            font-size: 16px;
+            text-transform: uppercase;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(0, 255, 64, 0.4);
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-neon:hover {
+            background: #00cc33;
+            box-shadow: 0 0 25px rgba(0, 255, 64, 0.8);
+            transform: translateY(-2px);
         }
     </style>
 </head>
 <body>
     <div class="contenedor-exito">
-        <h1>¡Reserva confirmada! ✅</h1>
-        <p>Hola, {{ nombre }}. Tu cita ha sido agendada exitosamente.</p>
-        <p>Detalles de la reserva:</p>
-        <hr>
-        <p><strong>Servicio:</strong> {{ servicio }}</p>
-        <p><strong>Fecha:</strong> {{ fecha }}</p>
-        <p><strong>Hora:</strong> {{ hora }}</p>
-        <hr>
-        <a href="/" class="boton">Volver al inicio</a>
-        <br>
-        <br>
-        <img src="/static/mapaLTM1.jpg" alt="Mapa de la red local"
-        style="max-width: 100%; height: auto; display: block; margin: 0 auto;">
+        <h1>¡Reserva Confirmada! ✅</h1>
+        <p>Hola, <strong>{{ nombre }}</strong>. Tu cita ha sido agendada exitosamente. Te esperamos en nuestra sucursal.</p>
+        
+        <div class="detalles-reserva">
+            <p><strong>Servicio:</strong> {{ servicio }}</p>
+            <p><strong>Fecha:</strong> {{ fecha }}</p>
+            <p><strong>Hora:</strong> {{ hora }}</p>
+        </div>
 
+        <div class="mapa-container">
+            <iframe src="https://maps.google.com/maps?width=100%25&amp;height=250&amp;hl=es&amp;q=Lautaro%20335,%20Rengo+(Lava%20Tu%20M%C3%A1quina)&amp;t=&amp;z=16&amp;ie=UTF8&amp;iwloc=B&amp;output=embed"></iframe>
+        </div>
+
+        <a href="/" class="btn-neon">VOLVER AL INICIO</a>
     </div>
 </body>
 </html>
