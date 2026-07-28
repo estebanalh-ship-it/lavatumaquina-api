@@ -223,7 +223,6 @@ def consulta():
                 conexion.close()
 
     return render_template('consulta.html')
-# -----------------------------------
 
 @app.route('/buscar_cliente')
 def buscar_cliente():
@@ -277,20 +276,22 @@ def exito():
     hora = request.args.get('hora')
     servicio_id = request.args.get('servicio_id')
     nombre_servicio = "Servicio no encontrado"
+    precio_servicio = 0
     try:
         conexion = mysql.connector.connect(**db_config)
         cursor = conexion.cursor(dictionary=True)
-        cursor.execute("SELECT nombre FROM servicios WHERE id_servicio = %s", (servicio_id,))
+        cursor.execute("SELECT nombre, precio FROM servicios WHERE id_servicio = %s", (servicio_id,))
         servicio_db = cursor.fetchone()
         if servicio_db:
             nombre_servicio = servicio_db['nombre']
+            precio_servicio = int(servicio_db['precio'])
     except Exception as e:
         print(f"Error al buscar servicio: {str(e)}")
     finally:
         if 'conexion' in locals() and conexion.is_connected():
             cursor.close()
             conexion.close()
-    return render_template('exito.html', nombre=nombre, fecha=fecha, hora=hora, servicio=nombre_servicio)
+    return render_template('exito.html', nombre=nombre, fecha=fecha, hora=hora, servicio=nombre_servicio, precio=precio_servicio)
 
 @app.route('/horas_disponibles', methods=['GET'])
 def horas_disponibles():
