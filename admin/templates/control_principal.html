@@ -73,12 +73,17 @@
             border-bottom-color: var(--border-color);
             vertical-align: middle;
         }
+       /* Forzar un tono oscuro y elegante para las filas alternadas */
         .table-striped > tbody > tr:nth-of-type(odd) > * {
-            background-color: rgba(255, 255, 255, 0.05) !important;
+            background-color: #1a2c48 !important; 
+            color: #ffffff !important;
+        }
+        .table > tbody > tr > * {
+            background-color: #132238;
             color: #ffffff !important;
         }
         .table-hover > tbody > tr:hover > * {
-            background-color: rgba(0, 200, 83, 0.1) !important;
+            background-color: rgba(0, 200, 83, 0.15) !important;
             color: #ffffff !important;
         }
         .scroll-table { 
