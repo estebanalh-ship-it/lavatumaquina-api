@@ -38,8 +38,18 @@
         }
 
         /* ----- HEADER Y LOGO ----- */
-        .logo-container {
-            padding: 30px 0 20px;
+        .logo-container a {
+            display: inline-block;
+            transition: all 0.3s ease-in-out;
+        }
+        /* Efecto Neón Morado al pasar el cursor o pinchar */
+        .logo-container a:hover .logo,
+        .logo-container a:focus .logo {
+            box-shadow: 0 0 15px #a855f7, 0 0 30px #581c87;
+            border-color: #a855f7;
+            transform: translateY(-2px) scale(1.01);
+        }
+
         }
         .logo {
             width: 320px; 
