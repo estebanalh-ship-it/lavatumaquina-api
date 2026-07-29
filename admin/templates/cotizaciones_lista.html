@@ -166,7 +166,8 @@
             color: #ffffff;
             box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
         }
-    </style</head>
+    </style>
+</head>
 <body>
     <nav class="navbar navbar-expand-lg px-4">
         <div class="container-fluid">
@@ -239,7 +240,6 @@
                                 ${{ "{:,.0f}".format(c.total_final).replace(',', '.') }}
                             </td>
                             <td class="text-center">
-                                <!-- Lógica simple para colorear el badge según el estado -->
                                 {% set estado_lower = c.estado|lower if c.estado else 'pendiente' %}
                                 <span class="badge-estado badge-{{ estado_lower }}">
                                     {{ c.estado|capitalize if c.estado else 'Pendiente' }}
@@ -255,8 +255,6 @@
                                        class="btn btn-action btn-download" title="Descargar Excel">
                                         <i class="bi bi-file-earmark-spreadsheet"></i>
                                     </a>
-                                    <!-- Espacio reservado para futuro botón PDF -->
-                                    <!-- <a href="#" class="btn btn-action btn-download" title="Descargar PDF" style="border-color: #ef4444; color: #ef4444;"><i class="bi bi-file-earmark-pdf"></i></a> -->
                                 </div>
                             </td>
                         </tr>
