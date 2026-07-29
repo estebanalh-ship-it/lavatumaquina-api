@@ -62,7 +62,7 @@
             font-size: 1.1rem;
             letter-spacing: 1px;
             padding: 1.25rem;
-            color: #ef4444; /* Rojo para denotar acción de bloqueo */
+            color: #ffffff;
             text-align: center;
         }
 
@@ -71,7 +71,7 @@
         }
 
         .form-label { 
-            color: #60a5fa; 
+            color: #ffffff; 
             font-weight: bold; 
             text-transform: uppercase;
             font-size: 0.85rem;
@@ -159,8 +159,12 @@
             border-radius: 6px;
             font-weight: bold;
             margin-bottom: 10px;
-            color: #60a5fa;
+            color: #ffffff;
             border: 1px solid var(--border-color);
+        }
+
+        .form-text {
+            color: #ffffff !important;
         }
     </style>
 </head>
@@ -211,9 +215,15 @@
             <div class="card-body">
                 <form method="POST" action="{{ url_for('admin.bloqueo_agenda') }}">
                     
-                    <div class="mb-4">
-                        <label for="fecha_bloqueo" class="form-label font-mono">📅 Fecha a Bloquear</label>
-                        <input type="date" id="fecha_bloqueo" name="fecha_bloqueo" class="form-control" required>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label for="fecha_inicio" class="form-label font-mono">📅 Fecha Inicial</label>
+                            <input type="date" id="fecha_inicio" name="fecha_inicio" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="fecha_fin" class="form-label font-mono">📅 Fecha Final</label>
+                            <input type="date" id="fecha_fin" name="fecha_fin" class="form-control" required>
+                        </div>
                     </div>
 
                     <div class="mb-4">
@@ -223,8 +233,9 @@
 
                     <div class="mb-4">
                         <label class="form-label font-mono">🕐 Bandas Horarias a Bloquear</label>
-                        <small class="text-muted d-block mb-2 font-mono" style="font-size: 0.75rem;">
-                            Seleccione una o varias bandas. Estas aparecerán automáticamente como "OCUPADAS" en el módulo de Agenda Manual.
+                        <small class="text-white d-block mb-2 font-mono" style="font-size: 0.75rem;">
+                            Si selecciona un solo día: puede desmarcar bandas específicas.<br>
+                            Si selecciona un rango de días: se bloquean AUTOMÁTICAMENTE todas las bandas (09:00, 11:00, 15:00, 16:00) para todos los días del rango.
                         </small>
                         
                         <div class="seccion-bandas">
@@ -271,6 +282,47 @@
             </div>
         </div>
     </div>
+
+    <script>
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('fecha_inicio').setAttribute('min', today);
+        document.getElementById('fecha_fin').setAttribute('min', today);
+        
+        document.getElementById('fecha_inicio').addEventListener('change', function() {
+            document.getElementById('fecha_fin').setAttribute('min', this.value);
+        });
+
+        document.getElementById('fecha_fin').addEventListener('change', function() {
+            const fechaInicio = document.getElementById('fecha_inicio').value;
+            if (this.value < fechaInicio) {
+                alert('La fecha final no puede ser anterior a la fecha inicial');
+                this.value = fechaInicio;
+            }
+        });
+        function calcularDiferenciaDias() {
+            const fechaInicio = document.getElementById('fecha_inicio').value;
+            const fechaFin = document.getElementById('fecha_fin').value;
+            
+            if (!fechaInicio || !fechaFin) return;     
+            const inicio = new Date(fechaInicio);
+            const fin = new Date(fechaFin);
+            const diferenciaTiempo = fin.getTime() - inicio.getTime();
+            const diferenciaDias = Math.ceil(diferenciaTiempo / (1000 * 3600 * 24));          
+            const checkboxes = document.querySelectorAll('input[name="bandas"]');           
+            if (diferenciaDias > 0) {
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = true;
+                    checkbox.disabled = true;
+                });
+            } else {
+                checkboxes.forEach(checkbox => {
+                    checkbox.disabled = false;
+                });
+            }
+        }
+        document.getElementById('fecha_inicio').addEventListener('change', calcularDiferenciaDias);
+        document.getElementById('fecha_fin').addEventListener('change', calcularDiferenciaDias);
+    </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
