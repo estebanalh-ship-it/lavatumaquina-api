@@ -3,163 +3,275 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bloqueo de Agenda</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Bloqueo de Agenda | Panel Empresarial LTM</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        :root {
+            --bg-main: #060911;
+            --bg-card: #0d1b2a;
+            --bg-card-header: #102238;
+            --border-color: #1e3a5f;
+            --text-main: #ffffff;
+        }
+
+        body { 
+            background-color: var(--bg-main); 
+            color: var(--text-main);
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
             min-height: 100vh;
-            padding: 40px 0;
+            padding-bottom: 40px;
         }
-        .card {
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+
+        .font-mono {
+            font-family: 'Courier New', Courier, monospace;
+            letter-spacing: 0.5px;
         }
+
+        .navbar { 
+            background-color: #080f1d; 
+            border-bottom: 2px solid var(--border-color);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        .nav-logo {
+            height: 40px;
+            width: auto;
+            object-fit: contain;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            padding: 2px;
+            background: #0d1b2a;
+        }
+
+        .card { 
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+            margin-top: 20px;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .card-header {
+            background-color: var(--bg-card-header);
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            padding: 1.25rem;
+            color: #ef4444; /* Rojo para denotar acción de bloqueo */
+            text-align: center;
+        }
+
+        .card-body {
+            padding: 2rem;
+        }
+
+        .form-label { 
+            color: #60a5fa; 
+            font-weight: bold; 
+            text-transform: uppercase;
+            font-size: 0.85rem;
+        }
+
+        .form-control {
+            background-color: #080f1d;
+            border: 1px solid var(--border-color);
+            color: #ffffff;
+            padding: 12px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            background-color: #0a192f;
+            border-color: #3b82f6;
+            color: #ffffff;
+            box-shadow: 0 0 12px rgba(59, 130, 246, 0.5);
+        }
+
+        .form-check-input {
+            background-color: #080f1d;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+        }
+        .form-check-input:checked {
+            background-color: #3b82f6;
+            border-color: #3b82f6;
+        }
+        .form-check-label {
+            color: #ffffff;
+            cursor: pointer;
+        }
+
+        .btn-enterprise {
+            background-color: #0a192f;
+            border: 2px solid #1e3a8a;
+            color: #ffffff !important;
+            font-weight: 600;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease-in-out;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            width: 100%;
+        }
+
+        .btn-enterprise:hover {
+            background-color: #1e3a8a;
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.7), 0 0 30px rgba(30, 58, 138, 0.5);
+        }
+
         .banda-checkbox {
             margin: 8px 0;
-            padding: 10px;
-            background: white;
-            border-radius: 5px;
+            padding: 12px;
+            background: #080f1d;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            transition: all 0.2s ease;
         }
         .banda-checkbox:hover {
-            background: #f8f9fa;
+            background: #0a192f;
+            border-color: #3b82f6;
         }
+        
         .seccion-bandas {
-            max-height: 400px;
+            max-height: 350px;
             overflow-y: auto;
+            background-color: #080f1d;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
         }
+
         .tipo-servicio {
-            background: #e9ecef;
-            padding: 8px;
-            border-radius: 5px;
+            background: #102238;
+            padding: 8px 12px;
+            border-radius: 6px;
             font-weight: bold;
-            margin-top: 10px;
+            margin-bottom: 10px;
+            color: #60a5fa;
+            border: 1px solid var(--border-color);
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-8 col-md-10 col-12">
-                <div class="card">
-                    <div class="card-header bg-danger text-white">
-                        <h4 class="mb-0">🚫 Bloqueo de Agenda por Fuerza Mayor</h4>
+    <nav class="navbar navbar-expand-lg px-4">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center gap-3 text-decoration-none" href="#">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo LTM" class="nav-logo">
+                <div>
+                    <span class="d-block fw-bold font-mono text-uppercase text-white" style="font-size: 1.05rem;">Lava tu Máquina</span>
+                    <span class="text-info small font-mono">OPERACIONES | BLOQUEO DE AGENDA</span>
+                </div>
+            </a>
+            <div class="ms-auto d-flex align-items-center gap-3">
+                <a href="{{ url_for('admin.control_principal') }}" class="btn btn-outline-info btn-sm px-3 font-mono">
+                    <i class="bi bi-arrow-left-circle me-1"></i> VOLVER AL DASHBOARD
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4 mb-5" style="max-width: 700px;">
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm font-mono" role="alert" id="auto-dismiss-alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
-                    <div class="card-body">
-                        <a href="{{ url_for('admin.control_principal') }}" class="btn btn-secondary mb-3">
-                            ← Volver al Dashboard
-                        </a>
-                                                <!-- BLOQUE MAESTRO NUEVO -->
-                        {% with messages = get_flashed_messages(with_categories=true) %}
-                            {% if messages %}
-                                {% for category, message in messages %}
-                                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert" id="auto-dismiss-alert">
-                                        {{ message }}
-                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                    </div>
-                                {% endfor %}
-                                
-                                <script>
-                                    setTimeout(function() {
-                                        var alertElement = document.getElementById('auto-dismiss-alert');
-                                        if (alertElement) {
-                                            var bsAlert = new bootstrap.Alert(alertElement);
-                                            bsAlert.close();
-                                        }
-                                    }, 5000); 
-                                </script>
-                            {% endif %}
-                        {% endwith %}
-                        <form method="POST">
-                            <!-- Fecha -->
-                            <div class="mb-4">
-                                <label class="form-label fs-5">📅 Fecha a Bloquear</label>
-                                <input type="date" class="form-control form-control-lg" 
-                                       name="fecha_bloqueo" required>
+                {% endfor %}
+                <script>
+                    setTimeout(function() {
+                        var alertElement = document.getElementById('auto-dismiss-alert');
+                        if (alertElement) {
+                            var bsAlert = new bootstrap.Alert(alertElement);
+                            bsAlert.close();
+                        }
+                    }, 5000);
+                </script>
+            {% endif %}
+        {% endwith %}
+
+        <div class="card shadow-lg">
+            <div class="card-header font-mono">
+                <i class="bi bi-shield-lock me-2"></i> Bloqueo de Agenda por Fuerza Mayor
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('admin.bloquear_agenda') }}">
+                    
+                    <div class="mb-4">
+                        <label for="fecha_bloqueo" class="form-label font-mono">📅 Fecha a Bloquear</label>
+                        <input type="date" id="fecha_bloqueo" name="fecha_bloqueo" class="form-control" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="motivo" class="form-label font-mono">📝 Motivo del Bloqueo</label>
+                        <input type="text" id="motivo" name="motivo" class="form-control" value="Bloqueo por fuerza mayor" readonly>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label font-mono">🕐 Bandas Horarias a Bloquear</label>
+                        <small class="text-muted d-block mb-2 font-mono" style="font-size: 0.75rem;">
+                            Seleccione una o varias bandas. Estas aparecerán automáticamente como "OCUPADAS" en el módulo de Agenda Manual.
+                        </small>
+                        
+                        <div class="seccion-bandas">
+                            <div class="tipo-servicio font-mono">
+                                ⏰ BLOQUES OPERATIVOS (Lunes a Domingo)
                             </div>
-
-                            <!-- Motivo fijo -->
-                            <div class="mb-4">
-                                <label class="form-label fs-5">📝 Motivo del Bloqueo</label>
-                                <input type="text" class="form-control form-control-lg" 
-                                       name="motivo" value="Bloqueo por fuerza mayor" readonly>
-                            </div>
-
-                            <!-- Bandas Horarias Agrupadas -->
-                            <div class="mb-4">
-                                <label class="form-label fs-5">🕐 Bandas Horarias a Bloquear</label>
-                                <small class="text-muted d-block mb-2">
-                                    Selecciona una o varias bandas horarias
-                                </small>
-                                
-                                <div class="border rounded p-3 bg-light seccion-bandas">
-                                    <!-- Lavados -->
-                                    <div class="tipo-servicio text-primary">
-                                        🚗 LAVADOS
-                                    </div>
-                                    {% set bandas_lavados = ['09:00-10:00', '10:00-11:00', '15:00-16:00', '16:00-17:00'] %}
-                                    {% for banda in bandas_lavados %}
-                                        <div class="banda-checkbox">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" 
-                                                       name="bandas" value="lavado|{{ banda }}" 
-                                                       id="lavado_{{ loop.index }}">
-                                                <label class="form-check-label" for="lavado_{{ loop.index }}">
-                                                    {{ banda }}
-                                                </label>
-                                            </div>
-                                        </div>
-                                    {% endfor %}
-
-                                    <!-- Mecánico -->
-                                    <div class="tipo-servicio text-warning">
-                                        🔧 MECÁNICO
-                                    </div>
-                                    {% set bandas_mecanico = ['11:00-12:00', '12:00-13:00'] %}
-                                    {% for banda in bandas_mecanico %}
-                                        <div class="banda-checkbox">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" 
-                                                       name="bandas" value="mecanico|{{ banda }}" 
-                                                       id="mecanico_{{ loop.index }}">
-                                                <label class="form-check-label" for="mecanico_{{ loop.index }}">
-                                                    {{ banda }}
-                                                </label>
-                                            </div>
-                                        </div>
-                                    {% endfor %}
-
-                                    <!-- Lava Tapiz -->
-                                    <div class="tipo-servicio text-success">
-                                        🛋️ LAVADO DE TAPIZ
-                                    </div>
-                                    {% set bandas_tapiz = ['11:00-12:00', '12:00-13:00'] %}
-                                    {% for banda in bandas_tapiz %}
-                                        <div class="banda-checkbox">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" 
-                                                       name="bandas" value="tapiz|{{ banda }}" 
-                                                       id="tapiz_{{ loop.index }}">
-                                                <label class="form-check-label" for="tapiz_{{ loop.index }}">
-                                                    {{ banda }}
-                                                </label>
-                                            </div>
-                                        </div>
-                                    {% endfor %}
+                            
+                            <div class="banda-checkbox">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="bandas" value="09:00:00" id="hora_09">
+                                    <label class="form-check-label font-mono" for="hora_09">09:00 hrs</label>
                                 </div>
                             </div>
 
-                            <button type="submit" class="btn btn-danger btn-lg w-100">
-                                🔒 Registrar Bloqueos
-                            </button>
-                        </form>
+                            <div class="banda-checkbox">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="bandas" value="11:00:00" id="hora_11">
+                                    <label class="form-check-label font-mono" for="hora_11">11:00 hrs</label>
+                                </div>
+                            </div>
+
+                            <div class="banda-checkbox">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="bandas" value="15:00:00" id="hora_15">
+                                    <label class="form-check-label font-mono" for="hora_15">15:00 hrs</label>
+                                </div>
+                            </div>
+
+                            <div class="banda-checkbox">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="bandas" value="16:00:00" id="hora_16">
+                                    <label class="form-check-label font-mono" for="hora_16">16:00 hrs</label>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
+
+                    <div class="mt-5">
+                        <button type="submit" class="btn btn-enterprise font-mono">
+                            <i class="bi bi-lock fs-5"></i> Registrar Bloqueos
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-
