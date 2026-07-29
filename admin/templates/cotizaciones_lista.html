@@ -255,6 +255,11 @@
                                        class="btn btn-action btn-download" title="Descargar Excel">
                                         <i class="bi bi-file-earmark-spreadsheet"></i>
                                     </a>
+                                    <a href="{{ url_for('admin.descargar_cotizacion_pdf', id_cotizacion=c.id) }}" 
+                                       class="btn btn-action" style="background-color: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3);" 
+                                       title="Descargar PDF">
+                                        <i class="bi bi-file-earmark-pdf"></i>
+                                    </a>
                                 </div>
                             </td>
                         </tr>
