@@ -108,16 +108,25 @@ def horas_ocupadas():
     fecha = request.args.get('fecha')
     if not fecha:
         return jsonify([])
+    
     try:
         with engine.connect() as conn:
-            resultados = conn.execute(text("""
+            agendas = conn.execute(text("""
                 SELECT DATE_FORMAT(fecha_agenda, '%H:%i') AS hora
                 FROM agendas 
                 WHERE DATE(fecha_agenda) = :fecha 
                 AND estado != 'cancelada'
             """), {'fecha': fecha}).mappings().all()
-            horas_ocupadas_lista = [row['hora'] for row in resultados]
-        return jsonify(horas_ocupadas_lista)
+            bloqueos = conn.execute(text("""
+                SELECT DATE_FORMAT(horario_inicio, '%H:%i') AS hora
+                FROM bloqueos 
+                WHERE fecha = :fecha
+            """), {'fecha': fecha}).mappings().all()
+            horas_ocupadas_lista = list(set(
+                [row['hora'] for row in agendas] + 
+                [row['hora'] for row in bloqueos]
+            ))            
+        return jsonify(horas_ocupadas_lista)      
     except Exception as e:
         print(f"Error al consultar horas ocupadas en admin: {e}")
         return jsonify([])
@@ -162,46 +171,32 @@ def nuevo_cliente():
 def bloqueo_agenda():
     if request.method == 'POST':
         fecha_bloqueo = request.form.get('fecha_bloqueo')
-        bandas = request.form.getlist('bandas')  # Obtiene todas las bandas seleccionadas
+        bandas = request.form.getlist('bandas')  # Ahora recibe solo la hora: ej. ['09:00:00', '15:00:00']
         motivo = request.form.get('motivo', 'Bloqueo por fuerza mayor')
 
-        # Validación
         if not bandas:
             flash('⚠️ Debes seleccionar al menos una banda horaria', 'warning')
             return redirect(url_for('admin.bloqueo_agenda'))
 
         try:
             with engine.begin() as conn:
-                # Mapeo de tipos a id_servicio (ajusta estos IDs según tu base de datos)
-                tipo_a_servicio = {
-                    'lavado': 1,      # Reemplaza con el ID real de servicios de lavado
-                    'mecanico': 11,   # ID del servicio mecánico
-                    'tapiz': 13        # ID del servicio de tapiz (ajusta según tu BD)
-                }
-
                 contador_bloqueos = 0
 
-                # Procesar cada banda seleccionada
-                for banda_completa in bandas:
-                    # Separar tipo y banda: "lavado|09:00-10:00"
-                    tipo, banda = banda_completa.split('|')
-                    hora_inicio = banda.split('-')[0]  # Obtiene "09:00" de "09:00-10:00"
-
-                    # Obtener el id_servicio correspondiente
-                    id_servicio = tipo_a_servicio.get(tipo, 1)
-
-                    fecha_hora_completa = f"{fecha_bloqueo} {hora_inicio}"
-
-                    # INSERT sin el campo 'observaciones'
+                for hora_inicio in bandas:
+                    # Calculamos la hora de fin (bloques operativos de 1 hora)
+                    hora_int = int(hora_inicio.split(':')[0])
+                    hora_fin = f"{hora_int + 1:02d}:00:00"
+                    
+                    # Insertamos en la tabla 'bloqueos' según el esquema de su base de datos
                     conn.execute(text("""
-                        INSERT INTO agendas
-                        (id_cliente, id_servicio, fecha_agenda, estado, fecha_creacion)
-                        VALUES (NULL, :id_servicio, :fecha_agenda, 'bloqueado', NOW())
+                        INSERT INTO bloqueos (fecha, horario_inicio, horario_fin, motivo)
+                        VALUES (:fecha, :hora_inicio, :hora_fin, :motivo)
                     """), {
-                        'id_servicio': id_servicio,
-                        'fecha_agenda': fecha_hora_completa
+                        'fecha': fecha_bloqueo,
+                        'hora_inicio': hora_inicio,
+                        'hora_fin': hora_fin,
+                        'motivo': motivo
                     })
-
                     contador_bloqueos += 1
 
                 flash(f'✅ Se bloquearon {contador_bloqueos} bandas horarias correctamente. Motivo: {motivo}', 'success')
@@ -209,8 +204,6 @@ def bloqueo_agenda():
 
         except Exception as e:
             flash(f'❌ Error al crear bloqueos: {e}', 'danger')
-
-    # GET: solo mostramos el formulario
     return render_template('bloqueo_agenda.html')
 
 @admin_bp.route('/gestion_precios', methods=['GET', 'POST'])
