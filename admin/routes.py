@@ -263,7 +263,6 @@ def gestion_precios():
         except Exception as e:
             flash(f'❌ Error al actualizar precio: {e}', 'danger')
 
-    # GET: Cargar todos los servicios con sus precios actuales
     with engine.connect() as conn:
         servicios = conn.execute(text("""
             SELECT id_servicio, nombre, tipo_servicio, precio
@@ -303,13 +302,17 @@ def nueva_cotizacion():
         nombre = request.form.get('nombre')
         email = request.form.get('email')
         telefono = request.form.get('telefono', '').strip()
+        
         if telefono and not telefono.startswith('+569'):
             telefono = '+569' + telefono
+            
         productos = request.form.getlist('items_producto[]')
         cantidades = request.form.getlist('items_cantidad[]')
         precios = request.form.getlist('items_precio[]')
+        
         lista_items = []
         total_neto = 0
+        
         for prod, cant, prec in zip(productos, cantidades, precios):
             if prod.strip():
                 c = float(cant) if cant else 0
@@ -326,39 +329,64 @@ def nueva_cotizacion():
 
         iva = total_neto * 0.19
         total_final = total_neto + iva
-        total_neto = round(total_neto /10) * 10
-        iva        = round(iva /10) *10
-        total_final = round(total_final /10) *10
+        
+        # Redondeo a la decena más cercana como tenía en su lógica original
+        total_neto = round(total_neto / 10) * 10
+        iva = round(iva / 10) * 10
+        total_final = round(total_final / 10) * 10
+        
         items_json = json.dumps(lista_items)
+        
         try:
             with engine.begin() as conn:
-                    cliente_existente = conn.execute(text(
-                        "SELECT id_cliente FROM clientes WHERE rut = :rut"
-                    ), {'rut': rut}).fetchone()
-                    if not cliente_existente:
-                        conn.execute(text("""
-                            INSERT INTO clientes (rut, nombre, email, telefono, fecha_registro, activo)
-                            VALUES (:rut, :nombre, :email, :telefono, NOW(), 1)
-                        """), {
-                            'rut': rut,
-                            'nombre': nombre,
-                            'email': email,
-                            'telefono': telefono
-                        })
+                # 1. Verificar si el cliente ya existe
+                cliente_existente = conn.execute(text(
+                    "SELECT id_cliente FROM clientes WHERE rut = :rut"
+                ), {'rut': rut}).fetchone()
+                
+                # 2. Si no existe, lo creamos
+                if not cliente_existente:
                     conn.execute(text("""
-                        INSERT INTO cotizaciones 
-                        (rut_cliente, nombre_cliente, email_cliente, telefono_cliente, 
-                         total_neto, iva, total_final, detalle_items, fecha)
-                        VALUES (:rut, :nombre, :email, :tel, :neto, :iva, :final, :items, NOW())
+                        INSERT INTO clientes (rut, nombre, email, telefono, fecha_registro, activo)
+                        VALUES (:rut, :nombre, :email, :telefono, NOW(), 1)
                     """), {
-                        'rut': rut, 'nombre': nombre, 'email': email, 'tel': telefono,
-                        'neto': total_neto, 'iva': iva, 'final': total_final, 'items': items_json
+                        'rut': rut,
+                        'nombre': nombre,
+                        'email': email,
+                        'telefono': telefono
                     })
+                
+                # 3. Guardar la cotización
+                conn.execute(text("""
+                    INSERT INTO cotizaciones 
+                    (rut_cliente, nombre_cliente, email_cliente, telefono_cliente, 
+                     total_neto, iva, total_final, detalle_items, fecha)
+                    VALUES (:rut, :nombre, :email, :tel, :neto, :iva, :final, :items, NOW())
+                """), {
+                    'rut': rut, 
+                    'nombre': nombre, 
+                    'email': email, 
+                    'tel': telefono,
+                    'neto': total_neto, 
+                    'iva': iva, 
+                    'final': total_final, 
+                    'items': items_json
+                })
+                
             flash('✅ Cotización creada con éxito.', 'success')
             return redirect(url_for('admin.lista_cotizaciones'))
+            
         except Exception as e:
             flash(f'❌ Error al guardar cotización: {e}', 'danger')
-    return render_template('cotizaciones_nueva.html')
+
+    with engine.connect() as conn:
+        clientes = conn.execute(text("""
+            SELECT rut, nombre, email, telefono 
+            FROM clientes 
+            ORDER BY nombre ASC
+        """)).mappings().all()
+    
+    return render_template('cotizaciones_nueva.html', clientes=clientes)
 
 @admin_bp.route('/descargar_cotizacion/<int:id_cotizacion>')
 @login_required
