@@ -3,39 +3,176 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agenda Manual</title>
+    <title>Agenda Manual | Panel Empresarial LTM</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
-        body { background-color: #01172c; color: #fff; }
-        .navbar { background-color: #02771c; }
-        .navbar-brand, .nav-link { color: #fff !important; }
-        .card { background-color: #022b3a; padding: 20px; color: #e6e6e6; }
-        .form-label { color: #ffffff; font-weight: bold; }
-        .btn-success { background-color: #04fa04; border: none; }
-        .btn-secondary { background-color: #02771c; border: none; }
+        :root {
+            --bg-main: #060911;
+            --bg-card: #0d1b2a;
+            --bg-card-header: #102238;
+            --border-color: #1e3a5f;
+            --text-main: #ffffff;
+        }
+
+        body { 
+            background-color: var(--bg-main); 
+            color: var(--text-main);
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        }
+
+        /* Tipografía Hacker Monospace */
+        .font-mono {
+            font-family: 'Courier New', Courier, monospace;
+            letter-spacing: 0.5px;
+        }
+
+        /* ----- NAVBAR ----- */
+        .navbar { 
+            background-color: #080f1d; 
+            border-bottom: 2px solid var(--border-color);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        .nav-logo {
+            height: 40px;
+            width: auto;
+            object-fit: contain;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            padding: 2px;
+            background: #0d1b2a;
+        }
+
+        /* ----- TARJETAS GENERALES ----- */
+        .card { 
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+            margin-top: 20px;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .card-header {
+            background-color: var(--bg-card-header);
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            padding: 1.25rem;
+            color: var(--text-main);
+            text-align: center;
+        }
+
+        .card-body {
+            padding: 2rem;
+        }
+
+        /* ----- FORMULARIOS (Adaptación Dark/Neon) ----- */
+        .form-label { 
+            color: #60a5fa; 
+            font-weight: bold; 
+            text-transform: uppercase;
+            font-size: 0.85rem;
+        }
+
+        .form-control, .form-select {
+            background-color: #080f1d;
+            border: 1px solid var(--border-color);
+            color: #ffffff;
+            padding: 12px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            background-color: #0a192f;
+            border-color: #3b82f6;
+            color: #ffffff;
+            box-shadow: 0 0 12px rgba(59, 130, 246, 0.5);
+        }
+
+        /* Para cambiar el color de las opciones dentro del select en algunos navegadores */
+        option {
+            background-color: #0d1b2a;
+            color: #ffffff;
+        }
+
+        /* ----- BOTONES UNIFICADOS CON NEÓN AZUL MARINO ----- */
+        .btn-enterprise {
+            background-color: #0a192f;
+            border: 2px solid #1e3a8a;
+            color: #ffffff !important;
+            font-weight: 600;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease-in-out;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            width: 100%;
+        }
+
+        .btn-enterprise:hover {
+            background-color: #1e3a8a;
+            border-color: #3b82f6;
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.7), 0 0 30px rgba(30, 58, 138, 0.5);
+        }
+
+        /* Botón secundario para "Agregar Cliente" */
+        .btn-secondary-neon {
+            background-color: transparent;
+            border: 1px solid #0ea5e9;
+            color: #0ea5e9;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary-neon:hover {
+            background-color: #0ea5e9;
+            color: #ffffff;
+            box-shadow: 0 0 10px rgba(14, 165, 233, 0.5);
+        }
     </style>
 </head>
 <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg">
+    <nav class="navbar navbar-expand-lg px-4">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">Agenda Manual</a>
-            <div class="d-flex">
-                <a href="{{ url_for('admin.control_principal') }}" class="btn btn-secondary">Volver al Dashboard</a>
+            <a class="navbar-brand d-flex align-items-center gap-3 text-decoration-none" href="#">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo LTM" class="nav-logo">
+                <div>
+                    <span class="d-block fw-bold font-mono text-uppercase text-white" style="font-size: 1.05rem;">Lava tu Máquina</span>
+                    <span class="text-info small font-mono">OPERACIONES | AGENDA MANUAL</span>
+                </div>
+            </a>
+            <div class="ms-auto d-flex align-items-center gap-3">
+                <a href="{{ url_for('admin.control_principal') }}" class="btn btn-outline-info btn-sm px-3 font-mono">
+                    <i class="bi bi-arrow-left-circle me-1"></i> VOLVER AL DASHBOARD
+                </a>
             </div>
         </div>
     </nav>
 
-    <div class="container mt-4">
+    <div class="container mt-4 mb-5" style="max-width: 700px;">
+        
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert" id="auto-dismiss-alert">
+                    <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm font-mono" role="alert" id="auto-dismiss-alert">
                         {{ message }}
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 {% endfor %}
-                
                 <script>
                     setTimeout(function() {
                         var alertElement = document.getElementById('auto-dismiss-alert');
@@ -43,59 +180,70 @@
                             var bsAlert = new bootstrap.Alert(alertElement);
                             bsAlert.close();
                         }
-                    }, 5000); 
+                    }, 5000);
                 </script>
             {% endif %}
         {% endwith %}
-        <!-- FIN BLOQUE -->
-        <div class="card">
-            <h3 class="mb-3">Crear Agenda</h3>
-            <form method="POST">
-                <!-- Cliente -->
-                <div class="mb-3">
-                    <label for="id_cliente" class="form-label">Cliente</label>
-                    <select name="id_cliente" class="form-select" required>
-                        <option value="" selected disabled>Seleccione cliente</option>
-                        {% for c in clientes %}
-                        <option value="{{ c.id_cliente }}">{{ c.nombre }}</option>
-                        {% endfor %}
-                    </select>
-                    <a href="{{ url_for('admin.nuevo_cliente') }}" class="btn btn-info mt-2">Agregar nuevo cliente</a>
-                </div>
 
-                <!-- Servicio -->
-                <div class="mb-3">
-                    <label for="id_servicio" class="form-label">Servicio</label>
-                    <select name="id_servicio" class="form-select" required>
-                        <option value="" selected disabled>Seleccione servicio</option>
-                        {% for s in servicios %}
-                        <option value="{{ s.id_servicio }}">{{ s.tipo_servicio }} - {{ s.nombre }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
+        <div class="card shadow-lg">
+            <div class="card-header font-mono">
+                <i class="bi bi-calendar-plus me-2"></i> Crear Nueva Agenda
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label for="id_cliente" class="form-label font-mono mb-0">Cliente Registrado</label>
+                            <a href="{{ url_for('admin.nuevo_cliente') }}" class="btn btn-sm btn-secondary-neon rounded-pill px-3">
+                                <i class="bi bi-person-plus"></i> Nuevo Cliente
+                            </a>
+                        </div>
+                        <select name="id_cliente" class="form-select" required>
+                            <option value="" selected disabled>Seleccione cliente de la lista</option>
+                            {% for c in clientes %}
+                            <option value="{{ c.id_cliente }}">{{ c.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
 
-                <!-- Fecha -->
-                <div class="mb-3">
-                    <label for="fecha_agenda" class="form-label">Fecha</label>
-                    <input type="date" name="fecha_agenda" class="form-control" required>
-                </div>
+                    <div class="mb-4">
+                        <label for="id_servicio" class="form-label font-mono">Servicio Solicitado</label>
+                        <select name="id_servicio" class="form-select" required>
+                            <option value="" selected disabled>Seleccione el servicio</option>
+                            {% for s in servicios %}
+                            <option value="{{ s.id_servicio }}">{{ s.tipo_servicio }} - {{ s.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
 
-                <!-- Hora -->
-                <div class="mb-3">
-                    <label for="hora_agenda" class="form-label">Hora</label>
-                    <select name="hora_agenda" class="form-select" required>
-                        <option value="" selected disabled>Seleccione hora</option>
-                        <option value="09:00">09:00</option>
-                        <option value="10:00">10:00</option>
-                        <option value="11:00">11:00</option>
-                        <option value="12:00">12:00</option>
-                        <option value="15:00">15:00</option>
-                        <option value="16:00">16:00</option>
-                    </select>
-                </div>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label for="fecha_agenda" class="form-label font-mono">Fecha de Agenda</label>
+                            <input type="date" name="fecha_agenda" class="form-control" required>
+                        </div>
 
-                <button type="submit" class="btn btn-success w-100">Crear Agenda</button>
-            </form>
+                        <div class="col-md-6">
+                            <label for="hora_agenda" class="form-label font-mono">Hora de Inicio</label>
+                            <select name="hora_agenda" class="form-select" required>
+                                <option value="" selected disabled>Seleccione bloque</option>
+                                <option value="09:00">09:00 hrs</option>
+                                <option value="10:00">10:00 hrs</option>
+                                <option value="11:00">11:00 hrs</option>
+                                <option value="12:00">12:00 hrs</option>
+                                <option value="15:00">15:00 hrs</option>
+                                <option value="16:00">16:00 hrs</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mt-5">
+                        <button type="submit" class="btn btn-enterprise font-mono">
+                            <i class="bi bi-check-circle fs-5"></i> Confirmar Agenda
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
