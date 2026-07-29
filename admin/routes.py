@@ -170,36 +170,63 @@ def nuevo_cliente():
 @login_required
 def bloqueo_agenda():
     if request.method == 'POST':
-        fecha_bloqueo = request.form.get('fecha_bloqueo')
-        bandas = request.form.getlist('bandas')  # Ahora recibe solo la hora: ej. ['09:00:00', '15:00:00']
+        fecha_inicio = request.form.get('fecha_inicio')
+        fecha_fin = request.form.get('fecha_fin')
+        bandas = request.form.getlist('bandas')
         motivo = request.form.get('motivo', 'Bloqueo por fuerza mayor')
 
-        if not bandas:
-            flash('⚠️ Debes seleccionar al menos una banda horaria', 'warning')
+        if not fecha_inicio or not fecha_fin:
+            flash('️ Debes seleccionar fecha inicial y final', 'warning')
             return redirect(url_for('admin.bloqueo_agenda'))
+
+        from datetime import datetime, timedelta
+        fecha_inicio_dt = datetime.strptime(fecha_inicio, '%Y-%m-%d')
+        fecha_fin_dt = datetime.strptime(fecha_fin, '%Y-%m-%d')
+        
+        if fecha_fin_dt < fecha_inicio_dt:
+            flash('⚠️ La fecha final no puede ser anterior a la fecha inicial', 'warning')
+            return redirect(url_for('admin.bloqueo_agenda'))
+
+        dias_a_bloquear = []
+        fecha_actual = fecha_inicio_dt
+        while fecha_actual <= fecha_fin_dt:
+            dias_a_bloquear.append(fecha_actual.strftime('%Y-%m-%d'))
+            fecha_actual += timedelta(days=1)
+
+        diferencia_dias = (fecha_fin_dt - fecha_inicio_dt).days
+        
+        if diferencia_dias > 0:
+            bandas_a_procesar = ['09:00:00', '11:00:00', '15:00:00', '16:00:00']
+        else:
+            if not bandas:
+                flash('⚠️ Debes seleccionar al menos una banda horaria', 'warning')
+                return redirect(url_for('admin.bloqueo_agenda'))
+            bandas_a_procesar = bandas
 
         try:
             with engine.begin() as conn:
                 contador_bloqueos = 0
 
-                for hora_inicio in bandas:
-                    # Calculamos la hora de fin (bloques operativos de 1 hora)
-                    hora_int = int(hora_inicio.split(':')[0])
-                    hora_fin = f"{hora_int + 1:02d}:00:00"
-                    
-                    # Insertamos en la tabla 'bloqueos' según el esquema de su base de datos
-                    conn.execute(text("""
-                        INSERT INTO bloqueos (fecha, horario_inicio, horario_fin, motivo)
-                        VALUES (:fecha, :hora_inicio, :hora_fin, :motivo)
-                    """), {
-                        'fecha': fecha_bloqueo,
-                        'hora_inicio': hora_inicio,
-                        'hora_fin': hora_fin,
-                        'motivo': motivo
-                    })
-                    contador_bloqueos += 1
+                for fecha in dias_a_bloquear:
+                    for hora_inicio in bandas_a_procesar:
+                        hora_int = int(hora_inicio.split(':')[0])
+                        hora_fin = f"{hora_int + 1:02d}:00:00"
+                        
+                        conn.execute(text("""
+                            INSERT INTO bloqueos (fecha, horario_inicio, horario_fin, motivo)
+                            VALUES (:fecha, :hora_inicio, :hora_fin, :motivo)
+                        """), {
+                            'fecha': fecha,
+                            'hora_inicio': hora_inicio,
+                            'hora_fin': hora_fin,
+                            'motivo': motivo
+                        })
+                        contador_bloqueos += 1
 
-                flash(f'✅ Se bloquearon {contador_bloqueos} bandas horarias correctamente. Motivo: {motivo}', 'success')
+                if diferencia_dias > 0:
+                    flash(f'✅ Se bloquearon {len(dias_a_bloquear)} días completos ({contador_bloqueos} bandas en total). Motivo: {motivo}', 'success')
+                else:
+                    flash(f'✅ Se bloquearon {len(bandas_a_procesar)} bandas horarias para el {fecha_inicio}. Motivo: {motivo}', 'success')
                 return redirect(url_for('admin.bloqueo_agenda'))
 
         except Exception as e:
