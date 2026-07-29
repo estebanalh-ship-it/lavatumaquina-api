@@ -486,9 +486,7 @@ def descargar_cotizacion(id_cotizacion):
             top=Side(style='thin', color='000000'),
             bottom=Side(style='thin', color='000000')
         )
-        # La última fila con datos de ítems es la fila actual máxima
         last_item_row = ws.max_row
-        # Recorremos desde la fila de encabezados hasta la última de ítems
         for row in range(header_row, last_item_row + 1):
             for col in range(1, 6):  # Columnas A(1) a E(5)
                 ws.cell(row=row, column=col).border = thin_border
@@ -497,13 +495,10 @@ def descargar_cotizacion(id_cotizacion):
         ws.append(["", "", "Total Neto:", int(float(cot['total_neto'] or 0))])
         ws.append(["", "", "IVA (19%):", int(float(cot['iva'] or 0))])
         ws.append(["", "", "TOTAL FINAL:", int(float(cot['total_final'] or 0))])
-        # Negrita en totales
         ult_fila = ws.max_row
         for r in range(ult_fila-2, ult_fila+1):
-            ws.cell(row=r, column=3).font = Font(bold=True) # Columna C ("Total Neto:")
-            ws.cell(row=r, column=4).number_format = '#,##0' # Columna D (El valor)
-        # --- AUTO-AJUSTE DE COLUMNAS (Versión Segura) ---
-        # Definimos anchos mínimos para que no quede muy flaco
+            ws.cell(row=r, column=3).font = Font(bold=True) 
+            ws.cell(row=r, column=4).number_format = '#,##0' 
         column_widths = {'A': 28, 'B': 18, 'C': 15, 'D': 15, 'E': 15}
 
         for col_letter, width in column_widths.items():
@@ -521,14 +516,11 @@ def descargar_cotizacion(id_cotizacion):
         except Exception as e:
             print(f"⚠️ Error insertando imagen: {e}")
             
-        # 4. Guardar y Enviar
         buffer = io.BytesIO()
         wb.save(buffer)
         buffer.seek(0)
-
         nombre_cliente_safe = str(cot['nombre_cliente']).replace(' ', '_')
-        nombre_archivo = f"Cotizacion_{cot['id']}_{nombre_cliente_safe}.xlsx"
-        
+        nombre_archivo = f"Cotizacion_{cot['id']}_{nombre_cliente_safe}.xlsx"     
         return send_file(
             buffer, 
             as_attachment=True, 
@@ -537,70 +529,107 @@ def descargar_cotizacion(id_cotizacion):
         )
         
     except Exception as e:
-        print(f"ERROR EXCEL: {e}") # Esto saldrá en tu consola de error log
+        print(f"ERROR EXCEL: {e}") 
         flash(f'Error al generar el Excel: {str(e)}', 'danger')
         return redirect(url_for('admin.lista_cotizaciones'))
 
 @admin_bp.route('/descargar_cotizacion_pdf/<int:id_cotizacion>')
 @login_required
 def descargar_cotizacion_pdf(id_cotizacion):
-    """Genera y descarga el archivo PDF de una cotización específica."""
+    """Genera y descarga el archivo PDF de una cotización específica con encabezado corporativo."""
     from reportlab.lib.pagesizes import letter
     from reportlab.lib import colors
     from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
     from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
+    from reportlab.platypus.flowables import HRFlowable
     from reportlab.lib.units import inch
     from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
     from flask import current_app
     import io
-    import os
-    
+    import os 
     try:
         with engine.connect() as conn:
             cot = conn.execute(text("SELECT * FROM cotizaciones WHERE id = :id"), 
-                               {'id': id_cotizacion}).mappings().fetchone()
-        
+                               {'id': id_cotizacion}).mappings().fetchone() 
         if not cot:
             flash('Cotización no encontrada', 'danger')
             return redirect(url_for('admin.lista_cotizaciones'))
-
         items = json.loads(cot['detalle_items'])
-
         buffer = io.BytesIO()
         doc = SimpleDocTemplate(buffer, pagesize=letter,
-                                rightMargin=72, leftMargin=72,
-                                topMargin=72, bottomMargin=18)
-        
+                                rightMargin=54, leftMargin=54,
+                                topMargin=54, bottomMargin=36)
         elements = []
         styles = getSampleStyleSheet()
-        
         styles.add(ParagraphStyle(name='Center', alignment=TA_CENTER))
         styles.add(ParagraphStyle(name='Right', alignment=TA_RIGHT))
-        styles.add(ParagraphStyle(name='Heading2Custom', parent=styles['Heading2'], 
-                                  fontSize=14, textColor=colors.HexColor('#1e3a8a')))
+        styles.add(ParagraphStyle(name='EmpresaNombre', 
+                                  fontSize=11, 
+                                  textColor=colors.HexColor('#1e3a8a'),
+                                  fontName='Helvetica-Bold',
+                                  alignment=TA_LEFT,
+                                  spaceAfter=4))
+        styles.add(ParagraphStyle(name='EmpresaDato', 
+                                  fontSize=9, 
+                                  textColor=colors.HexColor('#334155'),
+                                  alignment=TA_LEFT,
+                                  spaceAfter=2))
+        styles.add(ParagraphStyle(name='TituloCotizacion', 
+                                  fontSize=16, 
+                                  textColor=colors.HexColor('#1e3a8a'),
+                                  fontName='Helvetica-Bold',
+                                  alignment=TA_CENTER,
+                                  spaceBefore=6,
+                                  spaceAfter=6))
         
-        try:
-            logo_path = os.path.join(current_app.root_path, 'static', 'logo.png')
-            if os.path.exists(logo_path):
-                logo = Image(logo_path, width=1.5*inch, height=1.5*inch)
-                logo.hAlign = 'CENTER'
-                elements.append(logo)
-                elements.append(Spacer(1, 0.2*inch))
-        except Exception as e:
-            print(f"⚠️ Error cargando logo: {e}")
-            # Si hay error con el logo, continuamos sin él
+        logo_path = os.path.join(current_app.root_path, 'static', 'logocot.webp')
+        if os.path.exists(logo_path):
+            logo = Image(logo_path, width=2.2*inch, height=0.8*inch, kind='proportional')
+            celda_logo = [[logo]]
+        else:
+            celda_logo = [[Paragraph("LOGO", styles['Center'])]]
         
-        elements.append(Paragraph("COMERCIAL Y SERVICIOS INTEGRALES LTM SPA", 
-                                  styles['Heading2Custom']))
-        elements.append(Paragraph("RUT: 78.290.357-8", styles['Center']))
-        elements.append(Paragraph("Tel: +569 36473898", styles['Center']))
-        elements.append(Paragraph("Email: lavatumaquina.rengo@gmail.com", styles['Center']))
-        elements.append(Paragraph("Dirección: Elicura #375, Rengo, Sexta Región, Chile", styles['Center']))
-        elements.append(Spacer(1, 0.3*inch))
+        datos_empresa = [
+            [Paragraph("COMERCIAL Y SERVICIOS INTEGRALES LTM SPA", styles['EmpresaNombre'])],
+            [Paragraph("RUT: 78.290.357-8", styles['EmpresaDato'])],
+            [Paragraph("Tel: +569 36473898", styles['EmpresaDato'])],
+            [Paragraph("Email: lavatumaquina.rengo@gmail.com", styles['EmpresaDato'])],
+            [Paragraph("Dirección: Elicura #375, Rengo, Sexta Región, Chile", styles['EmpresaDato'])]
+        ]
         
-        elements.append(Paragraph("COTIZACIÓN DE SERVICIOS", styles['Heading1']))
-        elements.append(Spacer(1, 0.2*inch))
+        tabla_datos = Table(datos_empresa, colWidths=[3.5*inch])
+        tabla_datos.setStyle(TableStyle([
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('LEFTPADDING', (0, 0), (-1, -1), 6),
+            ('TOPPADDING', (0, 0), (-1, -1), 2),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
+        ]))
         
+        celda_datos = [[tabla_datos]]
+        encabezado = Table([celda_logo[0] + celda_datos[0]], 
+                          colWidths=[2.4*inch, 4.6*inch])
+        encabezado.setStyle(TableStyle([
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('LEFTPADDING', (0, 0), (0, 0), 0),
+            ('RIGHTPADDING', (-1, 0), (-1, 0), 0),
+            ('TOPPADDING', (0, 0), (-1, -1), 4),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+        ]))
+        
+        elements.append(encabezado)
+        
+        # Línea separadora azul
+        elements.append(HRFlowable(width="100%", thickness=2, 
+                                   color=colors.HexColor('#1e3a8a'), 
+                                   spaceAfter=8, spaceBefore=4))
+        
+        # Título de la cotización
+        elements.append(Paragraph("COTIZACIÓN DE SERVICIOS", styles['TituloCotizacion']))
+        
+        # Línea separadora inferior
+        elements.append(HRFlowable(width="100%", thickness=1, 
+                                   color=colors.HexColor('#94a3b8'), 
+                                   spaceAfter=12))
         cliente_data = [
             ['Cliente:', cot['nombre_cliente']],
             ['RUT:', cot['rut_cliente']],
@@ -609,16 +638,19 @@ def descargar_cotizacion_pdf(id_cotizacion):
             ['Teléfono:', cot['telefono_cliente'] or '']
         ]
         
-        tabla_cliente = Table(cliente_data, colWidths=[2*inch, 4*inch])
+        tabla_cliente = Table(cliente_data, colWidths=[1.5*inch, 5.5*inch])
         tabla_cliente.setStyle(TableStyle([
             ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
             ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
             ('FONTSIZE', (0, 0), (-1, -1), 10),
+            ('TEXTCOLOR', (0, 0), (0, -1), colors.HexColor('#1e3a8a')),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.grey)
+            ('TOPPADDING', (0, 0), (-1, -1), 4),
+            ('LINEBELOW', (0, 0), (-1, -1), 0.5, colors.HexColor('#e2e8f0')),
         ]))
         elements.append(tabla_cliente)
-        elements.append(Spacer(1, 0.3*inch))
+        elements.append(Spacer(1, 0.25*inch))
         
         data = [['Descripción / Servicio', 'Cantidad', 'Precio Neto', 'IVA (19%)', 'Total']]
         
@@ -645,26 +677,35 @@ def descargar_cotizacion_pdf(id_cotizacion):
         tabla_items.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1e3a8a')),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 10),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-            ('GRID', (0, 0), (-1, -1), 1, colors.black),
-            ('ALIGN', (2, 1), (-1, -1), 'RIGHT'),
+            ('FONTSIZE', (0, 0), (-1, 0), 9),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 10),
+            ('TOPPADDING', (0, 0), (-1, 0), 10),
+            ('BACKGROUND', (0, 1), (-1, -4), colors.HexColor('#f8fafc')),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#cbd5e1')),
+            ('ALIGN', (1, 1), (-1, -1), 'RIGHT'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('FONTSIZE', (0, 1), (-1, -1), 9),
+            # Fila de totales en ámbar
+            ('BACKGROUND', (0, -3), (-1, -1), colors.HexColor('#fef3c7')),
             ('FONTNAME', (0, -3), (-1, -1), 'Helvetica-Bold'),
-            ('BACKGROUND', (0, -3), (-1, -1), colors.HexColor('#fbbf24')),
+            ('FONTSIZE', (0, -3), (-1, -1), 10),
+            ('TEXTCOLOR', (0, -1), (-1, -1), colors.HexColor('#92400e')),
         ]))
-        
         elements.append(tabla_items)
-        
-        elements.append(Spacer(1, 0.5*inch))
+        elements.append(Spacer(1, 0.4*inch))
+        elements.append(HRFlowable(width="100%", thickness=1, 
+                                   color=colors.HexColor('#94a3b8'), 
+                                   spaceAfter=8))
         elements.append(Paragraph("Gracias por preferirnos", styles['Center']))
         elements.append(Paragraph("Esta cotización tiene una validez de 15 días", styles['Center']))
 
+        # 4. Construir PDF
         doc.build(elements)
         buffer.seek(0)
-
+        
+        # 5. Enviar archivo
         nombre_cliente_safe = str(cot['nombre_cliente']).replace(' ', '_')
         nombre_archivo = f"Cotizacion_{cot['id']}_{nombre_cliente_safe}.pdf"
         
