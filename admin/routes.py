@@ -83,7 +83,6 @@ def agenda_manual():
         id_servicio = request.form['id_servicio']
         fecha_agenda = request.form['fecha_agenda']
         hora_agenda = request.form['hora_agenda']
-
         try:
             with engine.begin() as conn:
                 conn.execute(text("""
@@ -98,14 +97,31 @@ def agenda_manual():
             return redirect(url_for('admin.agenda_manual'))  # Limpia el formulario
         except Exception as e:
             flash(f'Error al crear agenda: {e}', 'danger')
-
-    # Consulta para llenar selects
     with engine.connect() as conn:
         clientes = conn.execute(text("SELECT id_cliente, nombre FROM clientes")).mappings().all()
         servicios = conn.execute(text("SELECT id_servicio, nombre, tipo_servicio FROM servicios")).mappings().all()
-
     return render_template('agenda_manual.html', clientes=clientes, servicios=servicios)
 
+@admin_bp.route('/horas_ocupadas', methods=['GET'])
+@login_required
+def horas_ocupadas():
+    fecha = request.args.get('fecha')
+    if not fecha:
+        return jsonify([])
+    try:
+        with engine.connect() as conn:
+            resultados = conn.execute(text("""
+                SELECT DATE_FORMAT(fecha_agenda, '%H:%i') AS hora
+                FROM agendas 
+                WHERE DATE(fecha_agenda) = :fecha 
+                AND estado != 'cancelada'
+            """), {'fecha': fecha}).mappings().all()
+            horas_ocupadas_lista = [row['hora'] for row in resultados]
+        return jsonify(horas_ocupadas_lista)
+    except Exception as e:
+        print(f"Error al consultar horas ocupadas en admin: {e}")
+        return jsonify([])
+        
 @admin_bp.route('/nuevo_cliente', methods=['GET', 'POST'])
 @login_required
 def nuevo_cliente():
