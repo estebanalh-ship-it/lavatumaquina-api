@@ -3,39 +3,179 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nuevo Cliente</title>
+    <title>Nuevo Cliente | Panel Empresarial LTM</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
-        body { background-color: #01172c; color: #fff; }
-        .navbar { background-color: #02771c; }
-        .navbar-brand, .nav-link { color: #fff !important; }
-        .card { background-color: #022b3a; padding: 20px; color: #e6e6e6; }
-        .form-label { color: #ffffff; font-weight: bold; }
-        .btn-success { background-color: #04fa04; border: none; }
-        .btn-secondary { background-color: #02771c; border: none; }
+        :root {
+            --bg-main: #060911;
+            --bg-card: #0d1b2a;
+            --bg-card-header: #102238;
+            --border-color: #1e3a5f;
+            --text-main: #ffffff;
+        }
+
+        body { 
+            background-color: var(--bg-main); 
+            color: var(--text-main);
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        }
+
+        /* Tipografía Hacker Monospace */
+        .font-mono {
+            font-family: 'Courier New', Courier, monospace;
+            letter-spacing: 0.5px;
+        }
+
+        /* ----- NAVBAR ----- */
+        .navbar { 
+            background-color: #080f1d; 
+            border-bottom: 2px solid var(--border-color);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        .nav-logo {
+            height: 40px;
+            width: auto;
+            object-fit: contain;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            padding: 2px;
+            background: #0d1b2a;
+        }
+
+        /* ----- TARJETAS GENERALES ----- */
+        .card { 
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+            margin-top: 20px;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .card-header {
+            background-color: var(--bg-card-header);
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            padding: 1.25rem;
+            color: var(--text-main);
+            text-align: center;
+        }
+
+        .card-body {
+            padding: 2rem;
+        }
+
+        /* ----- FORMULARIOS ----- */
+        .form-label { 
+            color: #60a5fa; 
+            font-weight: bold; 
+            text-transform: uppercase;
+            font-size: 0.85rem;
+        }
+
+        .form-control {
+            background-color: #080f1d;
+            border: 1px solid var(--border-color);
+            color: #ffffff;
+            padding: 12px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            background-color: #0a192f;
+            border-color: #3b82f6;
+            color: #ffffff;
+            box-shadow: 0 0 12px rgba(59, 130, 246, 0.5);
+        }
+
+        .form-control::placeholder {
+            color: #475569;
+        }
+
+        /* Input Group para el Teléfono */
+        .input-group-text {
+            background-color: #080f1d;
+            border: 1px solid var(--border-color);
+            color: #60a5fa;
+            font-weight: bold;
+            border-right: none;
+        }
+        
+        .input-group .form-control {
+            border-left: 1px solid var(--border-color);
+        }
+
+        /* ----- BOTONES ----- */
+        .btn-enterprise {
+            background-color: #0a192f;
+            border: 2px solid #1e3a8a;
+            color: #ffffff !important;
+            font-weight: 600;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease-in-out;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            width: 100%;
+        }
+
+        .btn-enterprise:hover {
+            background-color: #1e3a8a;
+            border-color: #3b82f6;
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.7), 0 0 30px rgba(30, 58, 138, 0.5);
+        }
+
+        /* Validaciones */
+        .rut-error {
+            color: #ef4444;
+            font-size: 0.75rem;
+            margin-top: 5px;
+            display: block;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg">
+    <nav class="navbar navbar-expand-lg px-4">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">Nuevo Cliente</a>
-            <div class="d-flex">
-                <a href="{{ url_for('admin.agenda_manual') }}" class="btn btn-secondary">Volver a Agenda Manual</a>
+            <a class="navbar-brand d-flex align-items-center gap-3 text-decoration-none" href="#">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo LTM" class="nav-logo">
+                <div>
+                    <span class="d-block fw-bold font-mono text-uppercase text-white" style="font-size: 1.05rem;">Lava tu Máquina</span>
+                    <span class="text-info small font-mono">OPERACIONES | NUEVO CLIENTE</span>
+                </div>
+            </a>
+            <div class="ms-auto d-flex align-items-center gap-3">
+                <a href="{{ url_for('admin.agenda_manual') }}" class="btn btn-outline-info btn-sm px-3 font-mono">
+                    <i class="bi bi-arrow-left-circle me-1"></i> VOLVER A AGENDA
+                </a>
             </div>
         </div>
     </nav>
 
-    <div class="container mt-4">
+    <div class="container mt-4 mb-5" style="max-width: 700px;">
+        
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert" id="auto-dismiss-alert">
+                    <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm font-mono" role="alert" id="auto-dismiss-alert">
                         {{ message }}
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 {% endfor %}
-                
                 <script>
                     setTimeout(function() {
                         var alertElement = document.getElementById('auto-dismiss-alert');
@@ -43,40 +183,132 @@
                             var bsAlert = new bootstrap.Alert(alertElement);
                             bsAlert.close();
                         }
-                    }, 5000); 
+                    }, 5000);
                 </script>
             {% endif %}
         {% endwith %}
-        <!-- FIN BLOQUE -->
-        <div class="card">
-            <h3 class="mb-3">Agregar Cliente</h3>
-            <!-- FORMULARIO -->
-            <form method="POST" action="{{ url_for('admin.nuevo_cliente') }}">
-                <div class="mb-3">
-                    <label for="nombre" class="form-label">Nombre</label>
-                    <input type="text" name="nombre" class="form-control" required>
-                </div>
-                <div class="mb-3">
-                    <label for="apellido" class="form-label">Apellido</label>
-                    <input type="text" name="apellido" class="form-control">
-                </div>
-                <div class="mb-3">
-                    <label for="rut" class="form-label">RUT</label>
-                    <input type="text" name="rut" class="form-control" required>
-                </div>
-                <div class="mb-3">
-                    <label for="email" class="form-label">Email</label>
-                    <input type="email" name="email" class="form-control" required>
-                </div>
-                <div class="mb-3">
-                    <label for="telefono" class="form-label">Teléfono</label>
-                    <input type="text" name="telefono" class="form-control" required>
-                </div>
-            <button type="submit" class="btn btn-success w-100">Guardar Cliente</button>
-            </form>
+
+        <div class="card shadow-lg">
+            <div class="card-header font-mono">
+                <i class="bi bi-person-plus-fill me-2"></i> Registrar Nuevo Cliente
+            </div>
+            <div class="card-body">
+                <form id="form-cliente" method="POST" action="{{ url_for('admin.nuevo_cliente') }}">
+                    
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label for="nombre" class="form-label font-mono">Nombre</label>
+                            <input type="text" name="nombre" id="nombre" class="form-control font-mono" placeholder="Ej: Juan" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="apellido" class="form-label font-mono">Apellido</label>
+                            <input type="text" name="apellido" id="apellido" class="form-control font-mono" placeholder="Ej: Pérez">
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="rut" class="form-label font-mono">RUT del Cliente</label>
+                        <input type="text" id="rut" name="rut" class="form-control font-mono" 
+                            placeholder="Ej: 12345678-9" maxlength="10" required>
+                        <span id="rut-error" class="rut-error font-mono"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="email" class="form-label font-mono">Correo Electrónico</label>
+                        <input type="email" name="email" id="email" class="form-control font-mono" placeholder="ejemplo@correo.com" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="telefono" class="form-label font-mono">Teléfono</label>
+                        <div class="input-group">
+                            <span class="input-group-text font-mono">+569</span>
+                            <input type="text" name="telefono" id="telefono" class="form-control font-mono" placeholder="12345678" maxlength="8" pattern="\d{8}" title="Debe contener exactamente 8 números" required>
+                        </div>
+                    </div>
+
+                    <div class="mt-5">
+                        <button type="submit" class="btn btn-enterprise font-mono" id="btn-submit">
+                            <i class="bi bi-save fs-5"></i> Guardar Cliente
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const rutInput = document.getElementById('rut');
+            const rutError = document.getElementById('rut-error');
+            const form = document.getElementById('form-cliente');
+            const btnSubmit = document.getElementById('btn-submit');
+
+            rutInput.addEventListener('input', function(e) {
+                let valor = e.target.value;
+                e.target.value = formatearRUT(valor);
+                
+                rutError.textContent = '';
+                rutInput.style.borderColor = '';
+            });
+
+            rutInput.addEventListener('blur', function(e) {
+                let rut = e.target.value;
+                if (rut.length > 0) {
+                    if (!validarRUT(rut)) {
+                        rutError.textContent = '❌ RUT inválido. Verifica el formato o dígito verificador.';
+                        rutInput.style.borderColor = '#ef4444';
+                        btnSubmit.disabled = true;
+                    } else {
+                        rutError.textContent = '';
+                        rutInput.style.borderColor = '#10b981'; 
+                        btnSubmit.disabled = false;
+                    }
+                }
+            });
+
+            function calcularDigitoVerificador(numero) {
+                let t = parseInt(numero, 10);
+                let m = 0, s = 1;
+                while (t > 0) {
+                    s = (s + t % 10 * (9 - m++ % 6)) % 11;
+                    t = Math.floor(t / 10);
+                }
+                let v = (s > 0) ? (s - 1) + '' : 'K';
+                return v;
+            }
+
+            function validarRUT(rut) {
+                rut = rut.replace(/[.-]/g, '').toUpperCase();
+                
+                if (rut.length < 8 || rut.length > 9 || !/^\d{7,8}[0-9K]$/.test(rut)) {
+                    return false;
+                }
+                
+                const numero = rut.slice(0, -1);
+                const verificador = rut.slice(-1);
+                const digitoCalculado = calcularDigitoVerificador(numero);
+                
+                return verificador === digitoCalculado;
+            }
+
+            function formatearRUT(valor) {
+                let limpiar = valor.replace(/[^0-9kK]/g, '').toUpperCase();
+                
+                if (limpiar.length > 1) {
+                    let numero = limpiar.slice(0, -1);
+                    let verificador = limpiar.slice(-1);
+                    return numero + '-' + verificador;
+                }
+                return limpiar;
+            }
+
+            const telInput = document.getElementById('telefono');
+            telInput.addEventListener('input', function(e) {
+                this.value = this.value.replace(/[^0-9]/g, '');
+            });
+        });
+    </script>
 </body>
 </html>
