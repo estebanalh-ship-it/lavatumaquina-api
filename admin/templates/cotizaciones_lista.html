@@ -232,7 +232,7 @@
                     <tbody>
                         {% for c in cotizaciones %}
                         <tr>
-                            <td class="font-mono text-muted">#{{ "%04d" % c.id }}</td>
+                            <td class="font-mono text-white">#{{ "%04d" % c.id }}</td>
                             <td class="font-mono">{{ c.fecha.strftime('%d/%m/%Y') if c.fecha else 'N/A' }}</td>
                             <td class="fw-bold">{{ c.nombre_cliente }}</td>
                             <td class="font-mono">{{ c.rut_cliente }}</td>
@@ -260,7 +260,7 @@
                         </tr>
                         {% else %}
                         <tr>
-                            <td colspan="7" class="text-center py-5 text-muted font-mono">
+                            <td colspan="7" class="text-center py-5 text-white font-mono">
                                 <i class="bi bi-inbox fs-1 d-block mb-3"></i>
                                 No hay cotizaciones registradas aún.
                             </td>
