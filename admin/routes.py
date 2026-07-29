@@ -547,10 +547,11 @@ def descargar_cotizacion_pdf(id_cotizacion):
     from flask import current_app
     import io
     import os 
+    
     try:
         with engine.connect() as conn:
             cot = conn.execute(text("SELECT * FROM cotizaciones WHERE id = :id"), 
-                               {'id': id_cotizacion}).mappings().fetchone() 
+                               {'id': id_cotizacion}).mappings().fetchone()     
         if not cot:
             flash('Cotización no encontrada', 'danger')
             return redirect(url_for('admin.lista_cotizaciones'))
@@ -561,19 +562,24 @@ def descargar_cotizacion_pdf(id_cotizacion):
                                 topMargin=54, bottomMargin=36)
         elements = []
         styles = getSampleStyleSheet()
+        
         styles.add(ParagraphStyle(name='Center', alignment=TA_CENTER))
         styles.add(ParagraphStyle(name='Right', alignment=TA_RIGHT))
+        
         styles.add(ParagraphStyle(name='EmpresaNombre', 
-                                  fontSize=11, 
+                                  fontSize=10, 
                                   textColor=colors.HexColor('#1e3a8a'),
                                   fontName='Helvetica-Bold',
                                   alignment=TA_LEFT,
-                                  spaceAfter=4))
+                                  spaceAfter=3,
+                                  leading=12))
+        
         styles.add(ParagraphStyle(name='EmpresaDato', 
                                   fontSize=9, 
                                   textColor=colors.HexColor('#334155'),
                                   alignment=TA_LEFT,
                                   spaceAfter=2))
+        
         styles.add(ParagraphStyle(name='TituloCotizacion', 
                                   fontSize=16, 
                                   textColor=colors.HexColor('#1e3a8a'),
@@ -589,15 +595,6 @@ def descargar_cotizacion_pdf(id_cotizacion):
             celda_logo = [[logo]]
         else:
             celda_logo = [[Paragraph("LOGO", styles['Center'])]]
-        
-        # Estilo para el nombre de la empresa (una sola línea)
-        styles.add(ParagraphStyle(name='EmpresaNombre', 
-                                  fontSize=10, 
-                                  textColor=colors.HexColor('#1e3a8a'),
-                                  fontName='Helvetica-Bold',
-                                  alignment=TA_LEFT,
-                                  spaceAfter=3,
-                                  leading=12))
         
         # Celda derecha: Datos de la empresa
         datos_empresa = [
@@ -620,7 +617,7 @@ def descargar_cotizacion_pdf(id_cotizacion):
                           colWidths=[3.2*inch, 4.3*inch])
         encabezado.setStyle(TableStyle([
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ('BACKGROUND', (0, 0), (0, 0), colors.white),  # Fondo blanco para el logo
+            ('BACKGROUND', (0, 0), (0, 0), colors.white),  # Fondo blanco explícito para el logo
             ('LEFTPADDING', (0, 0), (0, 0), 0),
             ('RIGHTPADDING', (-1, 0), (-1, 0), 0),
             ('TOPPADDING', (0, 0), (-1, -1), 6),
@@ -632,13 +629,13 @@ def descargar_cotizacion_pdf(id_cotizacion):
                                    color=colors.HexColor('#1e3a8a'), 
                                    spaceAfter=8, spaceBefore=4))
         
-        # Título de la cotización
-        elements.append(Paragraph("COTIZACIÓN DE SERVICIOS", styles['TituloCotizacion']))
-        
-        # Línea separadora inferior
+
+        elements.append(Paragraph("COTIZACIÓN DE SERVICIOS", styles['TituloCotizacion']))     
+
         elements.append(HRFlowable(width="100%", thickness=1, 
                                    color=colors.HexColor('#94a3b8'), 
                                    spaceAfter=12))
+
         cliente_data = [
             ['Cliente:', cot['nombre_cliente']],
             ['RUT:', cot['rut_cliente']],
@@ -660,7 +657,7 @@ def descargar_cotizacion_pdf(id_cotizacion):
         ]))
         elements.append(tabla_cliente)
         elements.append(Spacer(1, 0.25*inch))
-        
+
         data = [['Descripción / Servicio', 'Cantidad', 'Precio Neto', 'IVA (19%)', 'Total']]
         
         for item in items:
@@ -696,7 +693,7 @@ def descargar_cotizacion_pdf(id_cotizacion):
             ('ALIGN', (1, 1), (-1, -1), 'RIGHT'),
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
             ('FONTSIZE', (0, 1), (-1, -1), 9),
-            # Fila de totales en ámbar
+
             ('BACKGROUND', (0, -3), (-1, -1), colors.HexColor('#fef3c7')),
             ('FONTNAME', (0, -3), (-1, -1), 'Helvetica-Bold'),
             ('FONTSIZE', (0, -3), (-1, -1), 10),
