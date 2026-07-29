@@ -301,12 +301,18 @@ def horas_disponibles():
     try:
         conexion = mysql.connector.connect(**db_config)
         cursor = conexion.cursor()
-        sql = "SELECT DATE_FORMAT(fecha_agenda, '%H:%i') AS hora_inicio FROM agendas WHERE DATE(fecha_agenda) = %s"
-        cursor.execute(sql, (fecha,))
+        sql = """
+            SELECT DATE_FORMAT(fecha_agenda, '%H:%i') AS hora 
+            FROM agendas 
+            WHERE DATE(fecha_agenda) = %s AND estado != 'cancelada'
+            UNION
+            SELECT DATE_FORMAT(horario_inicio, '%H:%i') AS hora 
+            FROM bloqueos 
+            WHERE fecha = %s
+        """
+        cursor.execute(sql, (fecha, fecha))
         horas_ocupadas = [row[0] for row in cursor.fetchall()]
-
         disponibles_lavados = [b for b in BANDAS_HORARIAS_LAVADOS if b not in horas_ocupadas]
-
         return jsonify({
             'disponibles_lavados': disponibles_lavados
         })
