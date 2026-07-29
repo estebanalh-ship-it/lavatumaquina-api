@@ -584,41 +584,50 @@ def descargar_cotizacion_pdf(id_cotizacion):
         
         logo_path = os.path.join(current_app.root_path, 'static', 'logocot.webp')
         if os.path.exists(logo_path):
-            logo = Image(logo_path, width=2.2*inch, height=0.8*inch, kind='proportional')
+            # Logo aumentado a 3.2" de ancho, alto proporcional
+            logo = Image(logo_path, width=3.2*inch, height=1.2*inch, kind='proportional')
             celda_logo = [[logo]]
         else:
             celda_logo = [[Paragraph("LOGO", styles['Center'])]]
         
+        # Estilo para el nombre de la empresa (una sola línea)
+        styles.add(ParagraphStyle(name='EmpresaNombre', 
+                                  fontSize=10, 
+                                  textColor=colors.HexColor('#1e3a8a'),
+                                  fontName='Helvetica-Bold',
+                                  alignment=TA_LEFT,
+                                  spaceAfter=3,
+                                  leading=12))
+        
+        # Celda derecha: Datos de la empresa
         datos_empresa = [
             [Paragraph("COMERCIAL Y SERVICIOS INTEGRALES LTM SPA", styles['EmpresaNombre'])],
-            [Paragraph("RUT: 78.290.357-8", styles['EmpresaDato'])],
-            [Paragraph("Tel: +569 36473898", styles['EmpresaDato'])],
+            [Paragraph("RUT: 78.290.357-8  |  Tel: +569 36473898", styles['EmpresaDato'])],
             [Paragraph("Email: lavatumaquina.rengo@gmail.com", styles['EmpresaDato'])],
             [Paragraph("Dirección: Elicura #375, Rengo, Sexta Región, Chile", styles['EmpresaDato'])]
         ]
         
-        tabla_datos = Table(datos_empresa, colWidths=[3.5*inch])
+        tabla_datos = Table(datos_empresa, colWidths=[4.3*inch])
         tabla_datos.setStyle(TableStyle([
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ('LEFTPADDING', (0, 0), (-1, -1), 6),
+            ('LEFTPADDING', (0, 0), (-1, -1), 8),
             ('TOPPADDING', (0, 0), (-1, -1), 2),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
         ]))
         
         celda_datos = [[tabla_datos]]
         encabezado = Table([celda_logo[0] + celda_datos[0]], 
-                          colWidths=[2.4*inch, 4.6*inch])
+                          colWidths=[3.2*inch, 4.3*inch])
         encabezado.setStyle(TableStyle([
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('BACKGROUND', (0, 0), (0, 0), colors.white),  # Fondo blanco para el logo
             ('LEFTPADDING', (0, 0), (0, 0), 0),
             ('RIGHTPADDING', (-1, 0), (-1, 0), 0),
-            ('TOPPADDING', (0, 0), (-1, -1), 4),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+            ('TOPPADDING', (0, 0), (-1, -1), 6),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
         ]))
+        elements.append(encabezado) 
         
-        elements.append(encabezado)
-        
-        # Línea separadora azul
         elements.append(HRFlowable(width="100%", thickness=2, 
                                    color=colors.HexColor('#1e3a8a'), 
                                    spaceAfter=8, spaceBefore=4))
