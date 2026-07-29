@@ -3,110 +3,245 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Precios</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Gestión de Precios | Panel Empresarial LTM</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        :root {
+            --bg-main: #060911;
+            --bg-card: #0d1b2a;
+            --bg-card-header: #102238;
+            --border-color: #1e3a5f;
+            --text-main: #ffffff;
+        }
+
+        body { 
+            background-color: var(--bg-main); 
+            color: var(--text-main);
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
             min-height: 100vh;
-            padding: 40px 0;
+            padding-bottom: 40px;
         }
-        .card {
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+
+        .font-mono {
+            font-family: 'Courier New', Courier, monospace;
+            letter-spacing: 0.5px;
         }
+
+        .navbar { 
+            background-color: #080f1d; 
+            border-bottom: 2px solid var(--border-color);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        .nav-logo {
+            height: 40px;
+            width: auto;
+            object-fit: contain;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            padding: 2px;
+            background: #0d1b2a;
+        }
+
+        .card { 
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+            margin-top: 20px;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .card-header {
+            background-color: var(--bg-card-header);
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            padding: 1.25rem;
+            color: #ffffff;
+            text-align: center;
+        }
+
+        .card-body {
+            padding: 2rem;
+        }
+
+        .form-label { 
+            color: #60a5fa; 
+            font-weight: bold; 
+            text-transform: uppercase;
+            font-size: 0.85rem;
+        }
+
+        .form-control, .form-select {
+            background-color: #080f1d;
+            border: 1px solid var(--border-color);
+            color: #ffffff;
+            padding: 12px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            background-color: #0a192f;
+            border-color: #3b82f6;
+            color: #ffffff;
+            box-shadow: 0 0 12px rgba(59, 130, 246, 0.5);
+        }
+
+        option {
+            background-color: #0d1b2a;
+            color: #ffffff;
+        }
+
         .precio-actual {
-            font-size: 1.5rem;
-            color: #28a745;
+            font-size: 2.5rem;
+            color: #10b981; /* Verde neón para destacar el dinero */
             font-weight: bold;
+            font-family: 'Courier New', Courier, monospace;
+            text-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+            text-align: center;
+            padding: 15px 0;
+            background: rgba(16, 185, 129, 0.05);
+            border-radius: 8px;
+            border: 1px dashed var(--border-color);
+        }
+
+        .btn-enterprise {
+            background-color: #0a192f;
+            border: 2px solid #1e3a8a;
+            color: #ffffff !important;
+            font-weight: 600;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease-in-out;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            width: 100%;
+        }
+
+        .btn-enterprise:hover {
+            background-color: #1e3a8a;
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.7), 0 0 30px rgba(30, 58, 138, 0.5);
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card">
-                    <div class="card-header bg-success text-white">
-                        <h4 class="mb-0">💰 Gestión de Precios de Servicios</h4>
-                    </div>
-                    <div class="card-body">
-                        <a href="{{ url_for('admin.control_principal') }}" class="btn btn-secondary mb-3">
-                            ← Volver al Dashboard
-                        </a>
-                                                <!-- BLOQUE MAESTRO NUEVO -->
-                        {% with messages = get_flashed_messages(with_categories=true) %}
-                            {% if messages %}
-                                {% for category, message in messages %}
-                                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert" id="auto-dismiss-alert">
-                                        {{ message }}
-                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                    </div>
-                                {% endfor %}
-                                
-                                <script>
-                                    setTimeout(function() {
-                                        var alertElement = document.getElementById('auto-dismiss-alert');
-                                        if (alertElement) {
-                                            var bsAlert = new bootstrap.Alert(alertElement);
-                                            bsAlert.close();
-                                        }
-                                    }, 5000); 
-                                </script>
-                            {% endif %}
-                        {% endwith %}
-                        <form method="POST">
-                            <!-- Selección de Servicio -->
-                            <div class="mb-3">
-                                <label class="form-label">🔧 Seleccionar Servicio</label>
-                                <select class="form-select" name="id_servicio" id="selectServicio" required>
-                                    <option value="">Seleccione un servicio</option>
-                                    {% for s in servicios %}
-                                        <option value="{{ s.id_servicio }}" data-precio="{{ s.precio }}">
-                                            {{ s.tipo_servicio }} - {{ s.nombre }}
-                                        </option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-
-                            <!-- Precio Actual (se muestra automáticamente) -->
-                            <div class="mb-3">
-                                <label class="form-label">💵 Precio Actual</label>
-                                <div class="precio-actual" id="precioActual">-</div>
-                            </div>
-
-                            <!-- Precio Nuevo -->
-                            <div class="mb-3">
-                                <label class="form-label">💸 Precio Nuevo</label>
-                                <input type="number" class="form-control form-control-lg" 
-                                       name="precio_nuevo" min="0" step="1" required
-                                       placeholder="Ingrese el nuevo precio">
-                            </div>
-
-                            <button type="submit" class="btn btn-success btn-lg w-100">
-                                ✅ Actualizar Precio
-                            </button>
-                        </form>
-                    </div>
+    <nav class="navbar navbar-expand-lg px-4">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center gap-3 text-decoration-none" href="#">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo LTM" class="nav-logo">
+                <div>
+                    <span class="d-block fw-bold font-mono text-uppercase text-white" style="font-size: 1.05rem;">Lava tu Máquina</span>
+                    <span class="text-info small font-mono">ADMINISTRACIÓN | GESTIÓN DE PRECIOS</span>
                 </div>
+            </a>
+            <div class="ms-auto d-flex align-items-center gap-3">
+                <a href="{{ url_for('admin.control_principal') }}" class="btn btn-outline-info btn-sm px-3 font-mono">
+                    <i class="bi bi-arrow-left-circle me-1"></i> VOLVER AL DASHBOARD
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4 mb-5" style="max-width: 700px;">
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm font-mono" role="alert" id="auto-dismiss-alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+                <script>
+                    setTimeout(function() {
+                        var alertElement = document.getElementById('auto-dismiss-alert');
+                        if (alertElement) {
+                            var bsAlert = new bootstrap.Alert(alertElement);
+                            bsAlert.close();
+                        }
+                    }, 5000);
+                </script>
+            {% endif %}
+        {% endwith %}
+
+        <div class="card shadow-lg">
+            <div class="card-header font-mono">
+                <i class="bi bi-cash-coin me-2"></i> Actualización de Tarifas
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('admin.gestion_precios') }}">
+                    
+                    <div class="mb-4">
+                        <label for="id_servicio" class="form-label font-mono">🔧 Seleccionar Servicio</label>
+                        <select class="form-select font-mono" name="id_servicio" id="selectServicio" required>
+                            <option value="" selected disabled>Seleccione un servicio de la lista</option>
+                            {% for s in servicios %}
+                                <option value="{{ s.id_servicio }}" data-precio="{{ s.precio }}">
+                                    {{ s.tipo_servicio|upper }} - {{ s.nombre }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label font-mono text-center d-block">💵 Precio Actual en Sistema</label>
+                        <div class="precio-actual" id="precioActual">$ 0</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="precio_nuevo" class="form-label font-mono">💸 Ingresar Precio Nuevo</label>
+                        <input type="number" id="precio_nuevo" class="form-control font-mono" 
+                               name="precio_nuevo" min="0" step="1000" required
+                               placeholder="Ej: 15000">
+                        <div class="form-text text-muted font-mono" style="font-size: 0.75rem; color: #60a5fa !important;">
+                            * El valor debe ser un número entero sin puntos ni comas.
+                        </div>
+                    </div>
+
+                    <div class="mt-5">
+                        <button type="submit" class="btn btn-enterprise font-mono">
+                            <i class="bi bi-check-circle fs-5"></i> Confirmar Actualización
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // JavaScript para mostrar precio actual al seleccionar servicio
+        // Lógica para mostrar el precio actual formateado en pesos chilenos
         document.getElementById('selectServicio').addEventListener('change', function() {
             const selected = this.options[this.selectedIndex];
             const precioActual = selected.getAttribute('data-precio');
+            const display = document.getElementById('precioActual');
             
-            if (precioActual) {
-                document.getElementById('precioActual').textContent = '$' + parseInt(precioActual).toLocaleString('es-CL');
+            if (precioActual && precioActual !== 'null' && precioActual !== '') {
+                const precioFormateado = new Intl.NumberFormat('es-CL', { 
+                    style: 'currency', 
+                    currency: 'CLP',
+                    minimumFractionDigits: 0 
+                }).format(parseInt(precioActual));
+                
+                display.textContent = precioFormateado;
+                display.style.color = '#10b981'; // Verde activo
             } else {
-                document.getElementById('precioActual').textContent = '-';
+                display.textContent = '$ 0';
+                display.style.color = '#6b7280'; // Gris inactivo
             }
         });
     </script>
 </body>
-
 </html>
