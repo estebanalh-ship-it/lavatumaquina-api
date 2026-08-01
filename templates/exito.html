@@ -6,6 +6,10 @@
     <title>Reserva Confirmada - Lava Tu Máquina</title>
     <style>
         /* ----- REGLAS GENERALES ----- */
+        :root {
+            --instagram-gradient: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+        }
+
         * {
             box-sizing: border-box;
             margin: 0;
@@ -17,7 +21,7 @@
             background-color: #060506;
             color: #ffffff;
             text-align: center;
-            padding: 40px 10px;
+            padding: 40px 10px 100px 10px; /* Padding bottom aumentado para el footer */
         }
 
         /* ----- CONTENEDOR GLASSMORPHISM ----- */
@@ -87,6 +91,13 @@
             display: block;
         }
 
+        .direccion-texto {
+            font-size: 13px;
+            color: #9ca3af;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
         /* ----- BOTÓN ----- */
         .btn-neon {
             display: inline-block;
@@ -110,6 +121,149 @@
             box-shadow: 0 0 25px rgba(0, 255, 64, 0.8);
             transform: translateY(-2px);
         }
+
+        /* ----- BOTÓN FLOTANTE DE INSTAGRAM ----- */
+        .instagram-float {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: var(--instagram-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(220, 39, 67, 0.4);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            text-decoration: none;
+        }
+
+        .instagram-float:hover {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 6px 25px rgba(220, 39, 67, 0.6);
+        }
+
+        .instagram-float svg {
+            width: 32px;
+            height: 32px;
+            fill: white;
+        }
+
+        /* Tooltip opcional */
+        .instagram-float::before {
+            content: "Síguenos en Instagram";
+            position: absolute;
+            right: 70px;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .instagram-float:hover::before {
+            opacity: 1;
+        }
+
+        /* ----- FOOTER PROFESIONAL ----- */
+        .footer-profesional {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(18, 8, 25, 0.95), rgba(18, 8, 25, 0.85));
+            border-top: 2px solid #a855f7;
+            padding: 20px 10px;
+            z-index: 999;
+        }
+
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .footer-slogan {
+            font-size: 18px;
+            font-weight: bold;
+            color: #00ff40;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px rgba(0, 255, 64, 0.3);
+        }
+
+        .footer-empresa {
+            font-size: 14px;
+            color: #c084fc;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .footer-rut {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-bottom: 10px;
+        }
+
+        .footer-contacto {
+            font-size: 13px;
+            color: #d1d5db;
+            margin-bottom: 8px;
+        }
+
+        .footer-contacto a {
+            color: #00ff40;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-contacto a:hover {
+            color: #00cc33;
+            text-decoration: underline;
+        }
+
+        .footer-ubicacion {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-top: 10px;
+            font-style: italic;
+        }
+
+        /* Responsive para móvil */
+        @media (max-width: 600px) {
+            .instagram-float {
+                width: 50px;
+                height: 50px;
+                bottom: 140px;
+                right: 15px;
+            }
+
+            .instagram-float svg {
+                width: 26px;
+                height: 26px;
+            }
+
+            .instagram-float::before {
+                display: none; /* Ocultar tooltip en móvil */
+            }
+
+            .footer-slogan {
+                font-size: 16px;
+            }
+
+            .footer-empresa {
+                font-size: 13px;
+            }
+
+            .footer-contacto {
+                font-size: 12px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -132,5 +286,30 @@
 
         <a href="/" class="btn-neon">VOLVER AL INICIO</a>
     </div>
+
+    <!-- BOTÓN FLOTANTE DE INSTAGRAM -->
+    <a href="https://www.instagram.com/lava_tu_maquina" target="_blank" class="instagram-float" title="Síguenos en Instagram">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+            <path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"/>
+        </svg>
+    </a>
+
+    <!-- FOOTER-->
+    <footer class="footer-profesional">
+        <div class="footer-content">
+            <div class="footer-slogan">¡TU SERVICIO DE CONFIANZA Y CALIDAD!</div>
+            <div class="footer-empresa">Comercial y Servicios Integrales LTM SpA</div>
+            <div class="footer-rut">RUT: 78.290.357-8</div>
+            <div class="footer-contacto">
+                📞 <a href="tel:+56936473898">+56 9 3647 3898</a>
+            </div>
+            <div class="footer-contacto">
+                ✉️ <a href="mailto:lavatumaquina.rengo@gmail.com">lavatumaquina.rengo@gmail.com</a> | 
+                <a href="mailto:vicentealvarado987@gmail.com">vicentealvarado987@gmail.com</a>
+            </div>
+            <div class="footer-ubicacion"> Elicura 375, Rengo, Sexta Región, Chile</div>
+        </div>
+    </footer>
+
 </body>
 </html>
