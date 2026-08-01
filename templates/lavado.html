@@ -251,28 +251,18 @@
 
     <section class="card-container">
         <h2 class="card-title" style="color: #c084fc;">Valores de Referencia</h2>
-        
         <div class="price-list">
-            <div class="price-item">
-                <span class="service-name">Lavado Pequeño</span>
-                <span class="service-price">$15.000</span>
+            {% for item in precios_referencia %}
+            <div class="price-item {% if item.es_premium %}premium{% endif %}">
+                <span class="service-name">{{ item.nombre }}</span>
+                <span class="service-price">{{ item.precio }}</span>
             </div>
-            <div class="price-item">
-                <span class="service-name">Lavado Mediano</span>
-                <span class="service-price">$20.000</span>
-            </div>
-            <div class="price-item">
-                <span class="service-name">Lavado Grande</span>
-                <span class="service-price">$25.000</span>
-            </div>
-            <div class="price-item premium">
-                <span class="service-name">Lavado Premium ✨</span>
-                <span class="service-price">$50.000</span>
-            </div>
+            {% else %}
+            <div class="info-text">Cargando precios...</div>
+            {% endfor %}
         </div>
-
         <div class="info-text">
-            *Servicio enfocado en los detalles. Limpieza profunda exterior e interior con productos de alta gama y técnicas especializadas.
+            *Servicio enfocado en los detalles de su auto. Limpieza profunda exterior e interior con productos de alta gama y técnicas especializadas.
         </div>
     </section>
 
@@ -315,16 +305,6 @@
                         required>
                     <input type="hidden" id="telefono_completo" name="telefono">
                 </div>            
-            </div>
-
-            <div class="form-group">
-                <label for="patente">Patente del Vehículo</label>
-                <input type="text" name="patente" id="patente" class="form-input" 
-                        placeholder="PATENTE (EJ: ABCD12)" maxlength="8"
-                        pattern="[A-Z0-9]{4,8}"
-                        title="Solo letras y números (mínimo 4, máximo 8)"
-                        oninput="this.value = this.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 8)"
-                        required>
             </div>
 
             <div class="form-group">
@@ -396,7 +376,6 @@
                 });
         }
 
-        // ===== LÓGICA RUT =====
         function calcularDigitoVerificador(numero) {
             let suma = 0;
             let multiplicador = 2;
@@ -442,15 +421,11 @@
             }
             return limpiar;
         }
-
-        // Auto-relleno y funciones principales
         document.addEventListener('DOMContentLoaded', function() {
             const rutInput = document.getElementById('rut');
             const nombreInput = document.getElementById('nombre');
             const emailInput = document.getElementById('email');
             const telefonoInput = document.getElementById('telefono_usuario');
-            const patenteInput = document.getElementById('patente');
-
             if (rutInput) {
                 rutInput.addEventListener('input', function(e) {
                     e.target.value = formatearRUT(e.target.value);
@@ -476,7 +451,6 @@
                                     if (nombreInput) nombreInput.value = data.nombre || '';
                                     if (emailInput) emailInput.value = data.email || '';
                                     if (telefonoInput) telefonoInput.value = data.telefono || '';
-                                    if (patenteInput) patenteInput.value = '';
                                 } else {
                                     if (nombreInput) nombreInput.value = '';
                                     if (emailInput) emailInput.value = '';
@@ -487,8 +461,6 @@
                     }
                 });
             }
-
-            // Horas disponibles solo desde fecha actual
             const fechaHoy = new Date();
             const yyyy = fechaHoy.getFullYear();
             const mm = String(fechaHoy.getMonth() + 1).padStart(2, '0');
