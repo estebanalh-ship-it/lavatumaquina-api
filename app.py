@@ -27,7 +27,7 @@ def enviar_correos_confirmacion(datos_cita):
         
         asunto_empresa = f"Nueva Cita Agendada: {datos_cita['nombre_servicio']} para {datos_cita['nombre_cliente']}"
         msg_empresa = Message(asunto_empresa, recipients=['lavatumaquina.rengo@gmail.com'])
-        msg_empresa.html = f"""<h3>Se ha agendado una nueva cita:</h3><ul><li><b>Cliente:</b> {datos_cita['nombre_cliente']}</li><li><b>Email:</b> {datos_cita['email_cliente']}</li><li><b>Teléfono:</b> {datos_cita['telefono']}</li><li><b>Patente:</b> {datos_cita['patente']}</li><li><b>Servicio:</b> {datos_cita['nombre_servicio']}</li><li><b>Fecha:</b> {datos_cita['fecha']}</li><li><b>Hora:</b> {datos_cita['hora']}</li></ul>"""
+        msg_empresa.html = f"""<h3>Se ha agendado una nueva cita:</h3><ul><li><b>Cliente:</b> {datos_cita['nombre_cliente']}</li><li><b>Email:</b> {datos_cita['email_cliente']}</li><li><b>Teléfono:</b> {datos_cita['telefono']}</li><li><b>Servicio:</b> {datos_cita['nombre_servicio']}</li><li><b>Fecha:</b> {datos_cita['fecha']}</li><li><b>Hora:</b> {datos_cita['hora']}</li></ul>"""
         mail.send(msg_empresa)
         print("¡Correos de confirmación enviados exitosamente!")
     except Exception as e:
@@ -49,13 +49,10 @@ def lavado():
             telefono = str(request.form.get('telefono', ''))
             if not telefono.startswith('+569'):
                 telefono = '+569' + telefono.replace('+569', '')
-            patente = request.form['patente']
             id_servicio = request.form['id_servicio']
             fecha_agenda = request.form['fecha'] + ' ' + request.form['hora']
-
             if not id_servicio or not id_servicio.isdigit():
                 return jsonify({'error': 'Seleccione un servicio válido'}), 400
-
             conexion = mysql.connector.connect(**db_config)
             cursor = conexion.cursor(dictionary=True)
 
@@ -70,28 +67,12 @@ def lavado():
                     (rut, nombre, email, telefono)
                 )
                 id_cliente = cursor.lastrowid
-
-            cursor.execute(
-                "SELECT id_vehiculo FROM vehiculos WHERE patente = %s AND id_cliente = %s",
-                (patente, id_cliente)
-            )
-            vehiculo = cursor.fetchone()
-
-            if vehiculo:
-                id_vehiculo = vehiculo['id_vehiculo']
-            else:
-                cursor.execute(
-                    "INSERT INTO vehiculos (id_cliente, patente, tipo) VALUES (%s, %s, 'auto')",
-                    (id_cliente, patente)
-                )
-                id_vehiculo = cursor.lastrowid
-
+            id_vehiculo = None
             cursor.execute(
                 "INSERT INTO agendas (id_cliente, id_vehiculo, id_servicio, fecha_agenda) VALUES (%s, %s, %s, %s)",
                 (id_cliente, id_vehiculo, int(id_servicio), fecha_agenda)
             )
             conexion.commit()
-
             cursor.execute("SELECT nombre FROM servicios WHERE id_servicio = %s", (int(id_servicio),))
             serv_data = cursor.fetchone()
             nombre_servicio_final = serv_data['nombre'] if serv_data else 'Lavado Auto'
@@ -100,7 +81,6 @@ def lavado():
                 'nombre_cliente': nombre,
                 'email_cliente': email,
                 'telefono': telefono,
-                'patente': patente,
                 'nombre_servicio': nombre_servicio_final,
                 'fecha': request.form['fecha'],
                 'hora': request.form['hora']
@@ -114,7 +94,6 @@ def lavado():
             if 'conexion' in locals() and conexion.is_connected():
                 cursor.close()
                 conexion.close()
-
     try:
         conexion = mysql.connector.connect(**db_config)
         cursor = conexion.cursor(dictionary=True)
@@ -134,17 +113,31 @@ def lavado():
             [{'valor': r['valor'], 'nombre_mostrar': nombres_bonitos.get(r['valor'], r['valor'])} for r in rows],
             key=lambda x: orden.index(x['valor']) if x['valor'] in orden else 99
         )
-        servicios_lavado_actual = []
+        cursor.execute(
+            "SELECT `tamaño_auto`, MIN(precio) as precio FROM servicios "
+            "WHERE tipo_servicio = 'lavado' AND `tamaño_auto` IS NOT NULL "
+            "GROUP BY `tamaño_auto`"
+        )
+        precios_rows = cursor.fetchall()
+        precios_referencia = []
+        for p in precios_rows:
+            nombre_mostrar = nombres_bonitos.get(p['tamaño_auto'], p['tamaño_auto'])
+            # Formatear precio a formato chileno: $15.000
+            precio_formateado = f"${int(p['precio']):,}".replace(',', '.')
+            precios_referencia.append({
+                'nombre': nombre_mostrar,
+                'precio': precio_formateado,
+                'es_premium': 'Premium' in p['tamaño_auto']
+            })
     except Exception as e:
         print(f"Error al cargar servicios de lavado: {str(e)}")
         tamanos_lavado = []
-        servicios_lavado_actual = []
+        precios_referencia = []
     finally:
         if 'conexion' in locals() and conexion.is_connected():
             cursor.close()
             conexion.close()
-
-    return render_template('lavado.html', tamanos_lavado=tamanos_lavado, servicios_lavado_actual=servicios_lavado_actual)
+    return render_template('lavado.html', tamanos_lavado=tamanos_lavado, precios_referencia=precios_referencia)
 
 @app.route('/get_lavados/<tamano>')
 def get_lavados(tamano):
