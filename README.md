@@ -1,16 +1,16 @@
 <div align="center">
 
 <pre>
-╔═══════════════════════════════════════════════════════════════╗
-║                                                               ║
-║   L A V A   T U   M Á Q U I N A                               ║
-║   Sistema Integral de Gestión Automotriz                      ║
-║                                                               ║
-║   ERP  /  CRM  /  Booking Engine                              ║
-║                                                               ║
-║   Rengo, Chile  ·  2025 - 2026                                ║
-║                                                               ║
-╚═══════════════════════════════════════════════════════════════╝
++===============================================================+
+|                                                               |
+|   L A V A   T U   M A Q U I N A                               |
+|   Sistema Integral de Gestion Automotriz                      |
+|                                                               |
+|   E R P  /  C R M  /  B o o k i n g   E n g i n e             |
+|                                                               |
+|   Rengo, Chile  -  2025 - 2026                                |
+|                                                               |
++===============================================================+
 </pre>
 <br/>
 
