@@ -1,6 +1,7 @@
 <div align="center">
-<pre>
+
 ```
+<pre>
 ╔═══════════════════════════════════════════════════════════════╗
 ║                                                               ║
 ║   L A V A   T U   M Á Q U I N A                               ║
@@ -11,8 +12,9 @@
 ║   Rengo, Chile  ·  2025 - 2026                                ║
 ║                                                               ║
 ╚═══════════════════════════════════════════════════════════════╝
-```
 </pre>
+```
+
 <br/>
 
 [![Estado](https://img.shields.io/badge/STATUS-IN_DEVELOPMENT-4a5568?style=flat-square)](#)
