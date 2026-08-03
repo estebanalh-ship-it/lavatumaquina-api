@@ -7,6 +7,33 @@
 ██║ ██║ ╚████╔╝ ██║ ██║ ██╔╝ ██╗
 ╚═╝ ╚═╝ ╚═══╝ ╚═╝ ╚═╝ ╚═╝ ╚═╝
 
+# LAVA TU MÁQUINA
+### Sistema Integral de Gestión Automotriz
+
+> `ERP / CRM / Booking Engine` para centros de servicio automotriz
+
+[![Estado](https://img.shields.io/badge/STATUS-IN_DEVELOPMENT-4a5568?style=flat-square)](#)
+[![Versión](https://img.shields.io/badge/VERSION-1.0.0--beta-1a365d?style=flat-square)](#)
+[![Licencia](https://img.shields.io/badge/LICENSE-MIT-0f0f0f?style=flat-square)](LICENSE)
+[![Build](https://img.shields.io/badge/BUILD-PASSING-2d3748?style=flat-square)](#)
+[![Python](https://img.shields.io/badge/PYTHON-3.10+-1a365d?style=flat-square&logo=python&logoColor=white)](#)
+[![Flask](https://img.shields.io/badge/FLASK-3.x-0f0f0f?style=flat-square&logo=flask&logoColor=white)](#)
+[![MySQL](https://img.shields.io/badge/MySQL-8.0-1e3a5f?style=flat-square&logo=mysql&logoColor=white)](#)
+[![Bootstrap](https://img.shields.io/badge/BOOTSTRAP-5.3-2d3748?style=flat-square&logo=bootstrap&logoColor=white)](#)
+[![PythonAnywhere](https://img.shields.io/badge/HOST-PythonAnywhere-1a365d?style=flat-square&logo=pythonanywhere&logoColor=white)](#)
+
+---
+
+</div>
+
+## ▌ TABLA DE CONTENIDOS
+[01] Descripción General [05] Arquitectura del Sistema
+[02] Objetivos Estratégicos [06] Módulos Funcionales
+[03] Stack Tecnológico [07] Roadmap & Deployment
+[04] Características Core [08] Desarrollador & Contacto
+
+
+
 
 # 🚗 Lava Tu Máquina - Sistema de Gestión
 
