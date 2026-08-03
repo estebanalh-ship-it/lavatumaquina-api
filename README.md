@@ -44,14 +44,14 @@
 
 ## ▌ [01] DESCRIPCIÓN GENERAL
 
-**Lava Tu Máquina** es una plataforma web de gestión integral diseñada para centros de servicio automotriz. Desarrollada como solución B2C/B2B, el sistema centraliza la operación de un lavadero ubicado en Rengo, Chile (Región de O'Higgins), integrando reservas online, gestión administrativa y módulos de servicios mecánicos en una única interfaz unificada.
+**Lava Tu Máquina** es una plataforma web de gestión integral diseñada para centros de servicio automotriz. Desarrollada como solución B2C/B2B, el sistema centraliza la operación de un lavadero ubicado en Rengo, Chile (Región de O'Higgins), integrando reservas online, gestión administrativa y en un futuro la integración de un modulo para servicios mecánicos en una única interfaz unificada.
 
-El producto resuelve problemas operativos reales:
+El producto resuelve los siguientes problemas operativos reales:
 
-- **Agendamiento manual** propenso a errores y sobre-reservas.
-- **Falta de trazabilidad** en servicios prestados y clientes.
-- **Gestión de precios descentralizada** y sin historial.
-- **Ausencia de reportes** para la toma de decisiones.
+- **Agendamiento manual** proceso poco eficiente y un bajo control de gestión.
+- **Falta de trazabilidad** no existe control y tampoco historial de los clientes.
+- **Gestión de precios descentralizada** no existe una matriz de precios acorde al mercado.
+- **Ausencia de reportes** para la toma de decisiones administrativas.
 
 ---
 
