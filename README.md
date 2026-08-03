@@ -59,10 +59,10 @@ El producto resuelve los siguientes problemas operativos reales:
 
 ```yaml
 Automatización:     Eliminar procesos manuales en reservas y cotizaciones.
-Experiencia:        Proveer una UX intuitiva multiplataforma (PWA-like).
+Experiencia:        Proveer una Webapp intuitiva multiplataforma (Progressive Web App).
 Gestión:            Dashboard administrativo con KPIs en tiempo real.
 Escalabilidad:      Arquitectura modular preparada para multi-sucursal.
-Confiabilidad:      Reducir errores operativos en un >80%.
+Confiabilidad:      Reducir errores operativos y mejorar toma de desiciones.
 ```
 
 ---
@@ -89,7 +89,7 @@ Confiabilidad:      Reducir errores operativos en un >80%.
 | `Jinja2` | Motor de templates | 2.x |
 | `REST API` | Comunicación cliente-servidor | JSON |
 
-### `DevOps & Tooling`
+### `Desarrollo y Herramientas`
 
 | Tecnología | Rol |
 |---|---|
@@ -101,7 +101,7 @@ Confiabilidad:      Reducir errores operativos en un >80%.
 
 ---
 
-## ▌ [04] CARACTERÍSTICAS CORE
+## ▌ [04] CARACTERÍSTICAS API
 
 ### ► Motor de Reservas
 
@@ -113,7 +113,7 @@ Confiabilidad:      Reducir errores operativos en un >80%.
 ```
 
 - Reservas 24/7 con validación de slots disponibles.
-- Tipos de servicio: `Lavado General` / `Lavado Premium` / `Servicios Mecánicos`.
+- Tipos de servicio: `Lavado General`. Próximamente: `Servicios Mecanicos`.
 - Gestión de horarios con bloqueo de franjas ocupadas.
 
 ### ► Panel Administrativo
@@ -121,9 +121,9 @@ Confiabilidad:      Reducir errores operativos en un >80%.
 - **Dashboard**: KPIs diarios, semanales, mensuales.
 - **CRM**: gestión centralizada de clientes y vehículos.
 - **Citas**: CRUD completo con estados (`pendiente`, `en proceso`, `finalizada`, `cancelada`).
-- **Cotizaciones**: generación, envío y seguimiento.
+- **Cotizaciones**: generación, descarga archivo, envío y seguimiento.
 - **Precios**: módulo con versionado e historial de cambios.
-- **Reportes**: exportación a CSV/Excel.
+- **Reportes**: exportación a CSV/Excel y PDF.
 
 ### ► Interfaz
 
@@ -167,19 +167,18 @@ Local (Debian) --[git push]--> GitHub --[git pull]--> PythonAnywhere --[reload]-
 
 ## ▌ [06] MÓDULOS FUNCIONALES
 
-### `Módulo Cliente`
+### `Módulo Agenda`
 
-- Registro / Login / Recuperar contraseña.
-- Historial de servicios por vehículo.
-- Notificaciones por email.
-- Dashboard personal con próximas citas.
+- Catálogo dinámico de precios (editable desde admin).
+- Formulario de citas.
+- Confirmación de citas a correo personal y empresa. 
+- Formulario auto-completado a cliente antiguo.
+- Formulario guarda al nuevo cliente.
 
-### `Módulo Servicios`
+### `Módulo Consultas`
 
-- Catálogo dinámico (editable desde admin).
-- Sistema de precios con versionado.
-- Gestión de inventario de insumos.
-- Cotizaciones formalizadas.
+- Modulo con formulario para consultas.
+- Sincronizado para confirmación a correo personal y empresa. 
 
 ### `Módulo Administración`
 
@@ -187,26 +186,25 @@ Local (Debian) --[git push]--> GitHub --[git pull]--> PythonAnywhere --[reload]-
 - Reportes financieros y operativos.
 - Auditoría de cambios (precios, estados).
 - Exportación de datos.
+- Gestión de clientes.
+- Gestión de agendas manuales.
 
 ---
 
 ## ▌ [07] ROADMAP
 
 ```yaml
-v1.0.0-beta:  [x] Core funcional (reservas + admin básico)
+v1.0.0-beta:  [x] API funcional (reservas + admin básico)
 v1.1.0:       [x] Módulo cotizaciones
 v1.2.0:       [x] Módulo precios con versionado
 v1.3.0:       [ ] Módulo reportes avanzados (Chart.js)
 v1.4.0:       [ ] Notificaciones SMS / WhatsApp API
-v2.0.0:       [ ] Multi-sucursal / SaaS
 ```
 
 ```yaml
 RELEASE PÚBLICO: ABRIL 2026
-  [ ] Repositorio abierto en GitHub
+  [x] Repositorio abierto en GitHub
   [ ] Documentación técnica completa
-  [ ] Guías de instalación / deployment
-  [ ] Comunidad de contribuidores
 ```
 
 ---
