@@ -254,7 +254,7 @@ Objetivo:       Desarrollador profesional — disponible para ofertas laborales
 ```
 email   ::  esteban.alh@gmail.com
 phone   ::  +56 9 6682 2259
-github  ::  [tu-usuario]
+github  ::  estebanalh-ship-it
 ```
 
 ### Key Learnings
