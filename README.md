@@ -57,5 +57,14 @@ Gestión:            Dashboard administrativo con KPIs en tiempo real.
 Escalabilidad:      Arquitectura modular preparada para multi-sucursal.
 Confiabilidad:      Reducir errores operativos en un >80%.
 
+▌ [03] STACK TECNOLÓGICO
+
+Tecnología,Rol,Versión
+HTML5,Estructura semántica,Living Standard
+CSS3,Estilos responsive / Flexbox / Grid,ES2023
+JavaScript (ES6+),Lógica cliente / fetch API,ES2023
+Bootstrap 5,Sistema de diseño / componentes,5.3.x
+Font Awesome,Iconografía vectorial,6.x
+<img width="81" height="121" alt="image" src="https://github.com/user-attachments/assets/5df3c907-4c12-47d7-aadf-4de2eb703519" />
 
 
